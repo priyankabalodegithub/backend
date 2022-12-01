@@ -1,0 +1,13 @@
+const mongoose=require('mongoose')
+const citySchema=new mongoose.Schema({
+    name:{
+        type:String,
+        required:true
+    },
+    state_name:{
+        type:String,
+        required:true
+    }
+ 
+});
+module.exports=mongoose.model('Tbl_city',citySchema)
