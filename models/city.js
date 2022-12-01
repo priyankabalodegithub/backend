@@ -10,4 +10,17 @@ const citySchema=new mongoose.Schema({
     }
  
 });
+
+
+const citySchema1=new mongoose.Schema({
+    name:{
+        type:String,
+        required:true
+    },
+    state_name:{
+        type:String,
+        required:true
+    }
+ 
+});
 module.exports=mongoose.model('Tbl_city',citySchema)
