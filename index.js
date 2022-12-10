@@ -3,7 +3,7 @@ mongoose.connect("mongodb://127.0.0.1:27017/CRMSETUP")
 
 const express=require("express");
 const app=express();
-
+const paginate=require('express-paginate')
 
 
 app.use(function(req,res,next){

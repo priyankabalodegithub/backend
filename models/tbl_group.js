@@ -6,22 +6,14 @@ const groupSchema=new mongoose.Schema({
  },
  group_description:{
     type:String,
-    required:true
+
  },
  
  status:{
    type:Boolean,
-   required:true
+   default:true
+   
 },
-
-// colors:{
-//    type:Array,
-//    required:true
-// },
-// country:{
-//    type:Array,
-//    required:true
-// },
 
 is_group:{
    type:Number,

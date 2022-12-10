@@ -2,6 +2,7 @@ const express=require('express');
 const admin_route=express();
 const session=require('express-session');
 
+const paginate=require('jw-paginate')
 const config=require('../config/config');
 
 admin_route.use(session({secret:config.sessionSecret}));
@@ -95,5 +96,6 @@ admin_route.get('/edit-staff',managementController.editstaff);
 admin_route.get('/test',jwtHelper,function(req,res){
     res.status(200).send({success:true,msg:"authentication"})
 })
+
 
 module.exports=admin_route;

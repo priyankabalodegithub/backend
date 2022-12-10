@@ -35,7 +35,7 @@ const contactSchema=new mongoose.Schema({
  }],
   status:{
     type:Boolean,
-    required:true
+   //  required:true
  },
  address1:{
     type:String,

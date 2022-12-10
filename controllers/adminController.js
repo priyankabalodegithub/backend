@@ -296,14 +296,12 @@ const addContact=async(req,res)=>{
             if(userData)
             {
                
-                
                 res.status(200).send({success:true,data:userData,msg:"Data save successfully."})
             }
             else
             {
                 res.status(200).send({msg:"contact data failed"})
             }
-    
     }
     catch(error)
     {
@@ -317,31 +315,43 @@ const addContact=async(req,res)=>{
 // contact list
 const contactList=async(req,res)=>{
     try{
-
-        var userlist=await Contact.aggregate([
-            {
-            $lookup:
-            {
-                from : "tbl_groups",
-                localField:"group",
-                foreignField:"_id",
-                // pipeline:[
-                //     {$project:{group:1}}
-                // ],
-                as:"group"
-            }
-        }])
-        console.log(JSON.stringify(userlist));
-        const userData=await Contact.find({type:1});
-
-    res.status(200).send({success:true,data:userlist});
+        
+        const pageNumber = parseInt(req.query.pageNumber) || 0;
+        const limit = parseInt(req.query.limit) || 4;
+        const result = {};
+        const totalPosts = await Contact.countDocuments().exec();
+        let startIndex = pageNumber * limit;
+        const endIndex = (pageNumber + 1) * limit;
+        result.totalPosts = totalPosts;
+        if (startIndex > 0) {
+          result.previous = {
+            pageNumber: pageNumber - 1,
+            limit: limit,
+          };
+        }
+        if (endIndex < (await Contact.countDocuments().exec())) {
+          result.next = {
+            pageNumber: pageNumber + 1,
+            limit: limit,
+          };
+        }
+        result.data = await Contact.find()
+        .populate('group')
+        // .sort("-_id")
+        .skip(startIndex)
+        .limit(limit)
+        .exec();
+      result.rowsPerPage = limit;
+      return res.send({ msg: "Posts Fetched successfully", data: result});
 
     }
-    catch(err){
-        console.log(err);
-        res.status(400).send(err.message);
+
+    catch(error){
+        console.log(error);
+    return res.status(500).json({ msg: "Sorry, something went wrong" });
     }
 }
+
 
 // delete contact
 const deleteContact=async(req,res)=>{
@@ -364,13 +374,12 @@ const editContact=async(req,res)=>{
     try{
 
        const id=req.query.id;
-       const userData=await Contact.findById({_id:id});
+       const userData=await Contact.findById({_id:id}).populate('group');
 
        if(userData){
 
-        
-        res.status(200).send({success:true,group:userData})
-
+         res.status(200).send({success:true,contact:userData})
+       
        }
        else{
        
