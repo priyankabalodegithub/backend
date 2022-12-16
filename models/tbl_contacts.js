@@ -32,9 +32,10 @@ const contactSchema=new mongoose.Schema({
  },
   group:[{
     type:mongoose.Schema.Types.ObjectId,ref:'Tbl_Group',
+     required:true
  }],
   status:{
-    type:Boolean,
+    type:Boolean
    //  required:true
  },
  address1:{

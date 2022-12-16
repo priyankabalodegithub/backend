@@ -13,4 +13,4 @@ const citySchema=new mongoose.Schema({
 
 
 
-module.exports=mongoose.model('Tbl_city',citySchema)
+module.exports=mongoose.model('City',citySchema)

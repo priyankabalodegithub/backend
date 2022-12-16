@@ -10,4 +10,4 @@ const countrySchema=new mongoose.Schema({
     }
  
 });
-module.exports=mongoose.model('Tbl_Country',countrySchema)
+module.exports=mongoose.model('Country',countrySchema)

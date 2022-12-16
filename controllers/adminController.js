@@ -200,8 +200,9 @@ const addGroup=async(req,res)=>{
 
 }
 
-// group list
-const groupList=async(req,res)=>{
+// group total
+const grouptotal=async(req,res)=>
+{
     try{
 
         const userData=await Group.find({ is_group:1});
@@ -210,6 +211,47 @@ const groupList=async(req,res)=>{
     }
     catch(err){
         res.status(400).send(err.message);
+    }
+
+}
+
+// group list
+const groupList=async(req,res)=>{
+    
+    try{
+        
+        const pageNumber = parseInt(req.query.pageNumber) || 0;
+        const limit = parseInt(req.query.limit) || 4;
+        const result = {};
+        const totalPosts = await Group.countDocuments().exec();
+        let startIndex = pageNumber * limit;
+        const endIndex = (pageNumber + 1) * limit;
+        result.totalPosts = totalPosts;
+        if (startIndex > 0) {
+          result.previous = {
+            pageNumber: pageNumber - 1,
+            limit: limit,
+          };
+        }
+        if (endIndex < (await Group.countDocuments().exec())) {
+          result.next = {
+            pageNumber: pageNumber + 1,
+            limit: limit,
+          };
+        }
+        result.data = await Group.find()
+        // .sort("-_id")
+        .skip(startIndex)
+        .limit(limit)
+        .exec();
+      result.rowsPerPage = limit;
+      return res.send({ msg: "Posts Fetched successfully", data: result});
+
+    }
+
+    catch(error){
+        console.log(error);
+    return res.status(500).json({ msg: "Sorry, something went wrong" });
     }
 }
 
@@ -461,14 +503,42 @@ const addLead=async(req,res)=>{
 // lead list
 
 const leadList=async(req,res)=>{
+   
     try{
-
-        const userData=await Lead.find({type:1});
-    res.status(200).send({success:true,data:userData});
-
+        
+        const pageNumber = parseInt(req.query.pageNumber) || 0;
+        const limit = parseInt(req.query.limit) || 4;
+        const result = {};
+        const totalPosts = await Lead.countDocuments().exec();
+        let startIndex = pageNumber * limit;
+        const endIndex = (pageNumber + 1) * limit;
+        result.totalPosts = totalPosts;
+        if (startIndex > 0) {
+          result.previous = {
+            pageNumber: pageNumber - 1,
+            limit: limit,
+          };
+        }
+        if (endIndex < (await Lead.countDocuments().exec())) {
+          result.next = {
+            pageNumber: pageNumber + 1,
+            limit: limit,
+          };
+        }
+        result.data = await Lead.find()
+        .populate('group business_opportunity')
+        // .sort("-_id")
+        .skip(startIndex)
+        .limit(limit)
+        .exec();
+      result.rowsPerPage = limit;
+      return res.send({ msg: "Posts Fetched successfully", data: result});
+       
     }
-    catch(err){
-        res.status(400).send(err.message);
+
+    catch(error){
+        console.log(error);
+    return res.status(500).json({ msg: "Sorry, something went wrong" });
     }
 }
 
@@ -493,12 +563,12 @@ const editLead=async(req,res)=>{
     try{
 
        const id=req.query.id;
-       const userData=await Lead.findById({_id:id});
+       const userData=await Lead.findById({_id:id}).populate('group business_opportunity');
 
        if(userData){
 
         
-        res.status(200).send({success:true,group:userData})
+        res.status(200).send({success:true,lead:userData})
 
        }
        else{
@@ -520,7 +590,7 @@ const updateLead=async(req,res)=>{
        const userData= await Lead.findByIdAndUpdate({_id:req.params.id},{$set:{first_name:req.body.first_name, last_name:req.body.last_name,designation:req.body.designation,
         company_name:req.body.company_name,email:req.body.email,primary_contact_number:req.body.primary_contact_number,secondary_contact_number:req.body.secondary_contact_number,business_opportunity:req.body.business_opportunity,
         group:req.body.group,status:req.body.status,address1:req.body.address1,address2:req.body.address2,taluka:req.body.taluka,village:req.body.village,zipcode:req.body.zipcode,
-        city:req.body.city,state:req.body.state,country:req.body.country}});
+        city:req.body.city,state:req.body.state,country:req.body.country}})
        res.status(200).send({sucess:true,msg:"sucessfully updated",group:userData})
 
     }
@@ -775,7 +845,8 @@ module.exports={
     updateBusiness,
     getCountries,
     getStates,
-    getCities
+    getCities,
+    grouptotal
     
 }
 

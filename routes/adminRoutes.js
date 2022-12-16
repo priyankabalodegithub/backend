@@ -46,6 +46,7 @@ admin_route.post('/login',adminController.verifyLogin);
 admin_route.post('/add_group',adminController.addGroup);
 
 admin_route.get('/group-list',adminController.groupList);
+admin_route.get('/total-list',adminController.grouptotal);
 
 admin_route.get('/delete-group',adminController.deleteGroup);
 
@@ -59,6 +60,7 @@ admin_route.get('/contact-list',adminController.contactList);
 admin_route.get('/delete-contact',adminController.deleteContact);
 admin_route.get('/edit-contact',adminController.editContact);
 admin_route.put('/edit-contact/:id',adminController.updateContact);
+
 admin_route.get('/get-countries',adminController.getCountries);
 admin_route.get('/get-states',adminController.getStates);
 admin_route.get('/get-cities',adminController.getCities)

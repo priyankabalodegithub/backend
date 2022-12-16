@@ -29,15 +29,15 @@ const leadSchema=new mongoose.Schema({
        type:Number,
        required:true
     },
-    business_opportunity:{
-       type:String,
+    business_opportunity:[{
+      type:mongoose.Schema.Types.ObjectId,ref:'Tbl_Business_Opportunity',
        required:true
-    },
+   }],
     
-     group:{
-       type:String,
+    group:[{
+      type:mongoose.Schema.Types.ObjectId,ref:'Tbl_Group',
        required:true
-    },
+   }],
      status:{
        type:Boolean,
        required:true
@@ -62,23 +62,22 @@ const leadSchema=new mongoose.Schema({
        type:String,
        required:true
     },
-    city:{
-       type:String,
-       
-    },
-    state:{
-       type:String,
-       
-    },
-    country:{
-       type:String,
-       
-    },
+    city: {
+      type:String
+   },
+   state:{
+      type:String
+   },
+   country:{
+      type:String
+   },
     
    type:{
       type:Number,
       default:1
-   }
+   },
      
-   });
+   },
+   {timestamps:true}
+   );
    module.exports=mongoose.model('Tbl_Lead',leadSchema)
