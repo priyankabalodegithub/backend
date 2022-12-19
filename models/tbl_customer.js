@@ -29,18 +29,18 @@ const customerSchema=new mongoose.Schema({
        type:Number,
        required:true
     },
-    service_offered:{
-       type:String,
+   service_offered:[{
+      type:mongoose.Schema.Types.ObjectId,ref:'Tbl_Service_Offered',
        required:true
-    },
+   }],
     
-     group:{
-       type:String,
+    group:[{
+      type:mongoose.Schema.Types.ObjectId,ref:'Tbl_Group',
        required:true
-    },
+   }],
      status:{
        type:Boolean,
-       required:true
+       default:true
     },
     address1:{
        type:String,
@@ -48,15 +48,15 @@ const customerSchema=new mongoose.Schema({
     },
     address2:{
        type:String,
-       required:true
+      
     },
     taluka:{
        type:String,
-       required:true
+      
     },
     village:{
        type:String,
-       required:true
+       
     },
     zipcode:{
        type:String,
@@ -79,5 +79,7 @@ const customerSchema=new mongoose.Schema({
       default:1
    }
      
-   });
+   },
+   {timestamps:true}
+   );
    module.exports=mongoose.model('Tbl_Customer',customerSchema)

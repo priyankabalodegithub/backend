@@ -4,6 +4,7 @@ const Contact=require('../models/tbl_contacts');
 const Lead=require('../models/tbl_lead');
 const Customer=require('../models/tbl_customer');
 const Business=require('../models/tbl_business_opportunities');
+const Service=require('../models/tbl_service_offered')
 const bcrypt=require('bcrypt');
 const randomstring=require('randomstring');
 const config=require("../config/config");
@@ -219,7 +220,10 @@ const grouptotal=async(req,res)=>
 const groupList=async(req,res)=>{
     
     try{
-        
+        var sortObject = {};
+        var stype = req.query.sorttype ? req.query.sorttype : '_id';
+        var sdir = req.query.sortdirection ? req.query.sortdirection : 1;
+        sortObject[stype] = sdir;
         const pageNumber = parseInt(req.query.pageNumber) || 0;
         const limit = parseInt(req.query.limit) || 4;
         const result = {};
@@ -241,6 +245,7 @@ const groupList=async(req,res)=>{
         }
         result.data = await Group.find()
         // .sort("-_id")
+        .sort(sortObject)
         .skip(startIndex)
         .limit(limit)
         .exec();
@@ -334,10 +339,14 @@ const addContact=async(req,res)=>{
                 
         })
             const userData=await contact.save();
-
+           
+        
             if(userData)
+
             {
-               
+                const groupCountData=await Group.findById({_id:req.body.group})
+               const count=groupCountData.count+1;
+               const userData1= await Group.findByIdAndUpdate({_id:req.body.group},{$set:{count:count}});
                 res.status(200).send({success:true,data:userData,msg:"Data save successfully."})
             }
             else
@@ -357,7 +366,10 @@ const addContact=async(req,res)=>{
 // contact list
 const contactList=async(req,res)=>{
     try{
-        
+        var sortObject = {};
+        var stype = req.query.sorttype ? req.query.sorttype : '_id';
+        var sdir = req.query.sortdirection ? req.query.sortdirection : 1;
+        sortObject[stype] = sdir;
         const pageNumber = parseInt(req.query.pageNumber) || 0;
         const limit = parseInt(req.query.limit) || 4;
         const result = {};
@@ -379,7 +391,7 @@ const contactList=async(req,res)=>{
         }
         result.data = await Contact.find()
         .populate('group')
-        // .sort("-_id")
+        .sort(sortObject)
         .skip(startIndex)
         .limit(limit)
         .exec();
@@ -505,7 +517,10 @@ const addLead=async(req,res)=>{
 const leadList=async(req,res)=>{
    
     try{
-        
+        var sortObject = {};
+        var stype = req.query.sorttype ? req.query.sorttype : '_id';
+        var sdir = req.query.sortdirection ? req.query.sortdirection : 1;
+        sortObject[stype] = sdir;
         const pageNumber = parseInt(req.query.pageNumber) || 0;
         const limit = parseInt(req.query.limit) || 4;
         const result = {};
@@ -527,7 +542,7 @@ const leadList=async(req,res)=>{
         }
         result.data = await Lead.find()
         .populate('group business_opportunity')
-        // .sort("-_id")
+        .sort(sortObject)
         .skip(startIndex)
         .limit(limit)
         .exec();
@@ -648,14 +663,54 @@ const addCustomer=async(req,res)=>{
 }
 // customer list
 const customerList=async(req,res)=>{
+    // try{
+
+    //     const userData=await Customer.find({type:1});
+    // res.status(200).send({success:true,data:userData});
+
+    // }
+    // catch(err){
+    //     res.status(400).send(err.message);
+    // }
+    
     try{
-
-        const userData=await Customer.find({type:1});
-    res.status(200).send({success:true,data:userData});
-
+        var sortObject = {};
+        var stype = req.query.sorttype ? req.query.sorttype : '_id';
+        var sdir = req.query.sortdirection ? req.query.sortdirection : 1;
+        sortObject[stype] = sdir;
+        const pageNumber = parseInt(req.query.pageNumber) || 0;
+        const limit = parseInt(req.query.limit) || 4;
+        const result = {};
+        const totalPosts = await Customer.countDocuments().exec();
+        let startIndex = pageNumber * limit;
+        const endIndex = (pageNumber + 1) * limit;
+        result.totalPosts = totalPosts;
+        if (startIndex > 0) {
+          result.previous = {
+            pageNumber: pageNumber - 1,
+            limit: limit,
+          };
+        }
+        if (endIndex < (await Customer.countDocuments().exec())) {
+          result.next = {
+            pageNumber: pageNumber + 1,
+            limit: limit,
+          };
+        }
+        result.data = await Customer.find()
+        .populate('group service_offered')
+        .sort(sortObject)
+        .skip(startIndex)
+        .limit(limit)
+        .exec();
+      result.rowsPerPage = limit;
+      return res.send({ msg: "Posts Fetched successfully", data: result});
+       
     }
-    catch(err){
-        res.status(400).send(err.message);
+
+    catch(error){
+        console.log(error);
+    return res.status(500).json({ msg: "Sorry, something went wrong" });
     }
 }
 
@@ -679,12 +734,12 @@ const editCustomer=async(req,res)=>{
     try{
 
        const id=req.query.id;
-       const userData=await Customer.findById({_id:id});
+       const userData=await Customer.findById({_id:id}).populate('group service_offered');
 
        if(userData){
 
         
-        res.status(200).send({success:true,group:userData})
+        res.status(200).send({success:true,customer:userData})
 
        }
        else{
@@ -814,6 +869,107 @@ const updateBusiness=async(req,res)=>{
     }
 }
 
+//add service Offered
+const serviceOffered=async(req,res)=>{
+    try{
+            
+            const service=new Service({
+                title:req.body.title,
+                is_active:req.body.is_active,         
+                
+        })
+            const userData=await service.save();
+
+            if(userData)
+            {
+               
+                
+                res.status(200).send({success:true,data:userData,msg:"Data save successfully."})
+            }
+            else
+            {
+                res.status(200).send({msg:"data failed"})
+            }
+    
+    }
+    catch(error)
+    {
+        
+        res.status(400).send(error.message);
+    }
+
+}
+
+// service offered list
+
+const serviceList=async(req,res)=>{
+    try{
+
+        const userData=await Service.find({ type:1});
+    res.status(200).send({success:true,data:userData});
+
+    }
+    catch(err){
+        res.status(400).send(err.message);
+    }
+}
+
+// delete service
+const deleteService=async(req,res)=>{
+    try{
+
+        const id=req.query.id;
+        await Service.deleteOne({_id:id});
+    res.status(200).send({success:true,msg:"business can be deleted"})
+
+    }
+    catch(err)
+    {
+       res.status(400).send(err.message)
+    }
+}
+
+// service edit & update
+
+const editserviceLoad=async(req,res)=>{
+    try{
+
+       const id=req.query.id;
+       const userData=await Service.findById({_id:id});
+
+       if(userData){
+
+        
+        res.status(200).send({success:true,group:userData})
+
+       }
+       else{
+       
+        res.status(200).send({success:false})
+       }
+
+    }
+    catch(error){
+        res.status(400).send(error.message);
+    }
+}
+
+// update Service
+
+const updateService=async(req,res)=>{
+    try{
+
+       const userData= await Service.findByIdAndUpdate({_id:req.params.id},{$set:{title:req.body.title,is_active:req.body.is_active}});
+       res.status(200).send({sucess:true,msg:"sucessfully updated",group:userData})
+
+    }
+    catch(error){
+        res.status(400).send(error.message);
+    }
+}
+
+
+
 
 module.exports={
     verifyLogin,
@@ -846,7 +1002,11 @@ module.exports={
     getCountries,
     getStates,
     getCities,
-    grouptotal
-    
+    grouptotal,
+    serviceOffered,
+    serviceList,
+    deleteService,
+    editserviceLoad,
+    updateService
 }
 

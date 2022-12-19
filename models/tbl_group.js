@@ -18,6 +18,10 @@ const groupSchema=new mongoose.Schema({
 is_group:{
    type:Number,
    default:1
+},
+count:{
+   type:Number,
+   default:0
 }
   
 });

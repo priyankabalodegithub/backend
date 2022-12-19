@@ -80,12 +80,19 @@ admin_route.get('/delete-customer',adminController.deleteCustomer);
 admin_route.get('/edit-customer',adminController.editCustomer);
 admin_route.put('/edit-customer/:id',adminController.updateCustomer);
 
-// // business opportunity route
+// business opportunity route
 admin_route.post('/add_business',adminController.businessOpportunity);
 admin_route.get('/business-list',adminController.businessList);
 admin_route.get('/delete-business',adminController.deleteBusiness);
 admin_route.get('/edit-business',adminController.editBusinessLoad);
 admin_route.put('/edit-business/:id',adminController.updateBusiness);
+
+// service Offered route
+admin_route.post('/add_service',adminController.serviceOffered);
+admin_route.get('/service-list',adminController.serviceList);
+admin_route.get('/delete-service',adminController.deleteService);
+admin_route.get('/edit-service',adminController.editserviceLoad);
+admin_route.put('/edit-service/:id',adminController.updateService);
 
 // staff management
 admin_route.post('/add-staff',managementController.addStaff);
