@@ -22,12 +22,12 @@ const leadSchema=new mongoose.Schema({
        required:true
     },
     primary_contact_number:{
-       type:Number,
+       type:String,
        required:true
     },
     secondary_contact_number:{
-       type:Number,
-       required:true
+       type:String,
+     
     },
     business_opportunity:[{
       type:mongoose.Schema.Types.ObjectId,ref:'Tbl_Business_Opportunity',

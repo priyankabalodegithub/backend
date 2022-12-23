@@ -1,19 +1,20 @@
 const express=require('express');
-const admin_route=express();
+const lead_route=express();
 const session=require('express-session');
 
+const paginate=require('jw-paginate')
 const config=require('../config/config');
 
-admin_route.use(session({secret:config.sessionSecret}));
+lead_route.use(session({secret:config.sessionSecret}));
 
 const bodyParser=require('body-parser');
-admin_route.use(bodyParser.json());
-admin_route.use(bodyParser.urlencoded({extended:true}));
+lead_route.use(bodyParser.json());
+lead_route.use(bodyParser.urlencoded({extended:true}));
 
 const multer=require('multer');
 const path=require("path");
 
-admin_route.use(express.static('public'));
+lead_route.use(express.static('public'));
 
 const storage=multer.diskStorage({
     destination:function(req,file,cb){
@@ -33,27 +34,28 @@ const storage=multer.diskStorage({
 const upload=multer({storage:storage});
 
 
-const adminController=require('../controllers/adminController');
+const leadController=require('../controllers/leadController');
 const managementController=require('../controllers/managementController')
 // const auth=require("../middleware/auth")
 const jwtHelper=require('../config/jwtHelper')
 
-admin_route.post('/register',adminController.insertUser);
-
-admin_route.post('/login',adminController.verifyLogin);
 
 
-// staff management
-admin_route.post('/add-staff',managementController.addStaff);
-admin_route.post('/add-right',managementController.addRights);
-admin_route.get('/right-list',managementController.rightList);
-admin_route.get('/delete-staff',managementController.deletestaff);
-admin_route.get('/edit-staff',managementController.editstaff);
+lead_route.get('/get-countries',leadController.getCountries);
+lead_route.get('/get-states',leadController.getStates);
+lead_route.get('/get-cities',leadController.getCities)
 
 
-admin_route.get('/test',jwtHelper,function(req,res){
+// lead route
+lead_route.post('/add_lead',leadController.addLead);
+lead_route.get('/lead-list',leadController.leadList);
+lead_route.get('/delete-lead',leadController.deleteLead);
+lead_route.get('/edit-lead',leadController.editLead);
+lead_route.put('/edit-lead/:id',leadController.updateLead);
+
+lead_route.get('/test',jwtHelper,function(req,res){
     res.status(200).send({success:true,msg:"authentication"})
 })
 
 
-module.exports=admin_route;
+module.exports=lead_route;

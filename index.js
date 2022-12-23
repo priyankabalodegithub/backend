@@ -18,8 +18,32 @@ app.use(cors({
 
 // for admin router
 const adminRoute=require('./routes/adminRoutes');
-const state = require('./models/state');
 app.use('/api',adminRoute);
+
+// for group router
+const groupRoute=require('./routes/groupRoute');
+app.use('/api',groupRoute);
+
+// for contact router
+const contactRoute=require('./routes/contactRoute');
+app.use('/api',contactRoute);
+
+// for lead router
+const leadRoute=require('./routes/leadRoute');
+app.use('/api',leadRoute);
+
+// for customer router
+const customerRoute=require('./routes/customerRoute');
+app.use('/api',customerRoute);
+
+// for business router
+const businessRoute=require('./routes/businessRoute');
+app.use('/api',businessRoute);
+
+// for service router
+const serviceRoute=require('./routes/serviceRoute');
+app.use('/api',serviceRoute);
+
 
 // for user router
 // const userRoute=require('./routers/userRoute')

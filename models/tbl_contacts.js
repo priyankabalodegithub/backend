@@ -19,16 +19,16 @@ const contactSchema=new mongoose.Schema({
     required:true
  },
  primary_contact_number:{
-    type:Number,
+    type:String,
     required:true
  },
  secondary_contact_number:{
-    type:Number,
+    type:String,
    
  },
  email:{
     type:String,
-    required:true
+    required:true,
  },
   group:[{
     type:mongoose.Schema.Types.ObjectId,ref:'Tbl_Group',
@@ -44,15 +44,15 @@ const contactSchema=new mongoose.Schema({
  },
  address2:{
     type:String,
-    required:true
+  
  },
  taluka:{
     type:String,
-    required:true
+   
  },
  village:{
     type:String,
-    required:true
+   
  },
  zipcode:{
     type:String,
@@ -60,13 +60,16 @@ const contactSchema=new mongoose.Schema({
  },
  
  city: {
-   type:String
+   type:String,
+   required:true
 },
 state:{
-   type:String
+   type:String,
+   required:true
 },
 country:{
-   type:String
+   type:String,
+   required:true
 },
  
 type:{

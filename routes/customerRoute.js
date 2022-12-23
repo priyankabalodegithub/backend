@@ -1,19 +1,20 @@
 const express=require('express');
-const admin_route=express();
+const customer_route=express();
 const session=require('express-session');
 
+const paginate=require('jw-paginate')
 const config=require('../config/config');
 
-admin_route.use(session({secret:config.sessionSecret}));
+customer_route.use(session({secret:config.sessionSecret}));
 
 const bodyParser=require('body-parser');
-admin_route.use(bodyParser.json());
-admin_route.use(bodyParser.urlencoded({extended:true}));
+customer_route.use(bodyParser.json());
+customer_route.use(bodyParser.urlencoded({extended:true}));
 
 const multer=require('multer');
 const path=require("path");
 
-admin_route.use(express.static('public'));
+customer_route.use(express.static('public'));
 
 const storage=multer.diskStorage({
     destination:function(req,file,cb){
@@ -33,27 +34,21 @@ const storage=multer.diskStorage({
 const upload=multer({storage:storage});
 
 
-const adminController=require('../controllers/adminController');
+const customerController=require('../controllers/customerController');
 const managementController=require('../controllers/managementController')
 // const auth=require("../middleware/auth")
 const jwtHelper=require('../config/jwtHelper')
 
-admin_route.post('/register',adminController.insertUser);
+// customer route
+customer_route.post('/add_customer',customerController.addCustomer);
+customer_route.get('/customer-list',customerController.customerList);
+customer_route.get('/delete-customer',customerController.deleteCustomer);
+customer_route.get('/edit-customer',customerController.editCustomer);
+customer_route.put('/edit-customer/:id',customerController.updateCustomer);
 
-admin_route.post('/login',adminController.verifyLogin);
-
-
-// staff management
-admin_route.post('/add-staff',managementController.addStaff);
-admin_route.post('/add-right',managementController.addRights);
-admin_route.get('/right-list',managementController.rightList);
-admin_route.get('/delete-staff',managementController.deletestaff);
-admin_route.get('/edit-staff',managementController.editstaff);
-
-
-admin_route.get('/test',jwtHelper,function(req,res){
+customer_route.get('/test',jwtHelper,function(req,res){
     res.status(200).send({success:true,msg:"authentication"})
 })
 
 
-module.exports=admin_route;
+module.exports=customer_route;
