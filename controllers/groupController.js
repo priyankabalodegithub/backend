@@ -7,7 +7,7 @@ const jwt=require('jsonwebtoken');
 const Country=require('../models/country');
 const State=require('../models/state');
 const City=require('../models/city')
-
+const excelJS=require("exceljs");
 const getCountries=async(req,res)=>{
     try{
         const countries=await Country.find({})
@@ -39,19 +39,6 @@ const getCities=async(req,res)=>{
 }
 
 
-const create_token=async(id)=>{
-    try{
-      
-         const token=await jwt.sign({_id:id},config.sessionSecret);
-         return token;
-
-
-    }
-    catch(error)
-    {
-        res.status(400).send(error.message);
-    }
-}
 
 // Add group
 
@@ -161,10 +148,13 @@ const groupList=async(req,res)=>{
 // delete group
 const deleteGroup=async(req,res)=>{
     try{
-
-        const id=req.query.id;
-        await Group.deleteOne({_id:id});
-    res.status(200).send({success:true,msg:"Group can be deleted"})
+        const userData=await Group.findOne({count:0})
+        if(userData.count==0){
+            const id=req.query.id;
+            await Group.deleteOne({_id:id});
+        res.status(200).send({success:true,msg:"Group can be deleted"})
+        }
+       
 
     }
     catch(err)
@@ -211,6 +201,55 @@ const updateProfile=async(req,res)=>{
         res.status(400).send(error.message);
     }
 }
+
+// export users data
+const exportContacts=async(req,res)=>{
+    try{
+      
+      const workbook=new excelJS.Workbook();
+      const worksheet=workbook.addWorksheet("My Group");
+  
+      worksheet.columns=[
+          {header:"S.no",key:"s_no",width:5},
+          {header:"Group",key:"group_name",width:10},
+          {header:"Total",key:"count",width:10},
+      ];
+  
+      let count=1;
+  
+      const userData=await Group.find({is_group:1})
+      userData.forEach((user)=>{
+          user.s_no=count;
+          worksheet.addRow(user);
+          count++;
+      })
+  
+      worksheet.getRow(1).eachCell((cell)=>{
+          cell.font={bold:true};
+      });
+  
+      try {
+        res.setHeader(
+          "Content-Type",
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
+        res.setHeader("Content-Disposition", `attachment; filename=users.xlsx`);
+    
+        return workbook.xlsx.write(res).then(() => {
+          res.status(200);
+        });
+    
+      } catch (err) {
+        res.send({
+          status: "error",
+          message: "Something went wrong",
+        });
+      }
+    }
+    catch(err){
+      console.log(err.message);
+    }
+  }
 module.exports={
 
     addGroup,
@@ -222,5 +261,6 @@ module.exports={
     getStates,
     getCities,
     grouptotal,
+    exportContacts
     
 }

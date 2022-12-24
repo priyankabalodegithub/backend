@@ -1,4 +1,6 @@
 const mongoose=require('mongoose')
+const uniqueValidator=require('mongoose-unique-validator')
+
 const contactSchema=new mongoose.Schema({
   
  first_name:{
@@ -28,7 +30,9 @@ const contactSchema=new mongoose.Schema({
  },
  email:{
     type:String,
+    unique:true,
     required:true,
+
  },
   group:[{
     type:mongoose.Schema.Types.ObjectId,ref:'Tbl_Group',
@@ -78,4 +82,7 @@ type:{
 }
   
 });
+
+contactSchema.plugin(uniqueValidator,{message:'{PATH} is already exists'});
+
 module.exports=mongoose.model('Tbl_Contact',contactSchema)

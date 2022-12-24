@@ -52,6 +52,8 @@ group_route.get('/get-countries',groupController.getCountries);
 group_route.get('/get-states',groupController.getStates);
 group_route.get('/get-cities',groupController.getCities)
 
+group_route.get('/export_group',groupController.exportContacts)
+
 group_route.get('/test',jwtHelper,function(req,res){
     res.status(200).send({success:true,msg:"authentication"})
 })

@@ -40,24 +40,12 @@ const getCities=async(req,res)=>{
 }
 
 
-const create_token=async(id)=>{
-    try{
-      
-         const token=await jwt.sign({_id:id},config.sessionSecret);
-         return token;
 
-
-    }
-    catch(error)
-    {
-        res.status(400).send(error.message);
-    }
-}
 
 // add contact
 const addContact=async(req,res)=>{
     try{
-            
+
             const contact=new Contact({
                 first_name:req.body.first_name,
                 last_name:req.body. last_name,
@@ -102,6 +90,30 @@ const addContact=async(req,res)=>{
         res.status(400).send(error.message);
     }
 
+}
+
+// email exist
+
+const emailExist=async(req,res)=>{
+
+    try{
+       console.log(req.query);
+        Contact.find({email:req.query.email})
+        .then(async resp=>{
+         if(resp.length!=0){
+        //   return res.send({msg:'exist'})
+           return res.status(200).send({success:false,msg:'Email alredy exist'})
+
+        } else {
+            return res.status(200).send({success:true,msg:'Email not exist'})
+        }
+      })
+
+    }
+    catch(err)
+    {
+       res.status(400).send(err.message)
+    }
 }
 
 // Contact.find({email:req.body.email})
@@ -185,8 +197,9 @@ const contactList=async(req,res)=>{
 
 // delete contact
 const deleteContact=async(req,res)=>{
-    try{
 
+    try{
+       
         const id=req.query.id;
         await Contact.deleteOne({_id:id});
     res.status(200).send({success:true,msg:"Contact can be deleted"})
@@ -249,4 +262,5 @@ module.exports={
     getCountries,
     getStates,
     getCities,
+    emailExist
 }
