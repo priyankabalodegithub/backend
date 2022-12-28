@@ -35,7 +35,6 @@ const upload=multer({storage:storage});
 
 
 const contactController=require('../controllers/contactController');
-const managementController=require('../controllers/managementController')
 // const auth=require("../middleware/auth")
 const jwtHelper=require('../config/jwtHelper')
 
@@ -46,6 +45,7 @@ contact_route.get('/delete-contact',contactController.deleteContact);
 contact_route.get('/edit-contact',contactController.editContact);
 contact_route.put('/edit-contact/:id',contactController.updateContact);
 contact_route.get('/exist-email',contactController.emailExist);
+contact_route.get('/exist-contact',contactController.contactExist);
 
 contact_route.get('/get-countries',contactController.getCountries);
 contact_route.get('/get-states',contactController.getStates);

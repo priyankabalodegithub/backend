@@ -1,9 +1,4 @@
-const Admin=require('../models/admin_users');
-const Group=require('../models/tbl_group');
-const Contact=require('../models/tbl_contacts');
-const Lead=require('../models/tbl_lead');
-const Customer=require('../models/tbl_customer');
-const Business=require('../models/tbl_business_opportunities');
+
 const Service=require('../models/tbl_service_offered')
 const bcrypt=require('bcrypt');
 const randomstring=require('randomstring');
@@ -58,6 +53,26 @@ const serviceOffered=async(req,res)=>{
 
 }
 
+// service exist
+const serviceExist=async(req,res)=>{
+
+    try{
+        Service.find({title:req.query.title})
+        .then(async resp=>{
+         if(resp.length!=0){
+           return res.status(200).send({success:false,msg:'Service alredy exist'})
+
+        } else {
+            return res.status(200).send({success:true,msg:'Service not exist'})
+        }
+      })
+
+    }
+    catch(err)
+    {
+       res.status(400).send(err.message)
+    }
+}
 // service offered list
 
 const serviceList=async(req,res)=>{
@@ -127,13 +142,12 @@ const updateService=async(req,res)=>{
 }
 
 
-
-
 module.exports={
     serviceOffered,
     serviceList,
     deleteService,
     editserviceLoad,
-    updateService
+    updateService,
+    serviceExist
 }
 

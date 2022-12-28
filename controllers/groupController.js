@@ -148,14 +148,15 @@ const groupList=async(req,res)=>{
 // delete group
 const deleteGroup=async(req,res)=>{
     try{
-        const userData=await Group.findOne({count:0})
+        const userData=await Group.findById({_id:req.query.id})
         if(userData.count==0){
             const id=req.query.id;
             await Group.deleteOne({_id:id});
-        res.status(200).send({success:true,msg:"Group can be deleted"})
+        res.status(200).send({success:true,msg:"Group can be deleted"}) 
         }
-       
-
+        else{
+            res.status(200).send({success:false,msg:"you don't have delete these group"}) 
+        }
     }
     catch(err)
     {
@@ -250,6 +251,29 @@ const exportContacts=async(req,res)=>{
       console.log(err.message);
     }
   }
+  
+//   group exist
+const groupExist=async(req,res)=>{
+
+    try{
+        Group.find({group_name:req.query.group_name})
+        .then(async resp=>{
+        //   console.log(resp)
+         if(resp.length!=0){
+        
+           return res.status(200).send({success:false,msg:'group alredy exist'})
+
+        } else {
+            return res.status(200).send({success:true,msg:'group not exist'})
+        }
+      })
+
+    }
+    catch(err)
+    {
+       res.status(400).send(err.message)
+    }
+}
 module.exports={
 
     addGroup,
@@ -261,6 +285,7 @@ module.exports={
     getStates,
     getCities,
     grouptotal,
-    exportContacts
+    exportContacts,
+    groupExist
     
 }

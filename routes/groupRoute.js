@@ -34,7 +34,6 @@ const storage=multer.diskStorage({
 const upload=multer({storage:storage});
 
 const groupController=require('../controllers/groupController');
-// const auth=require("../middleware/auth")
 const jwtHelper=require('../config/jwtHelper')
 
 group_route.post('/add_group',groupController.addGroup);
@@ -53,6 +52,8 @@ group_route.get('/get-states',groupController.getStates);
 group_route.get('/get-cities',groupController.getCities)
 
 group_route.get('/export_group',groupController.exportContacts)
+
+group_route.get('/exist-group',groupController.groupExist);
 
 group_route.get('/test',jwtHelper,function(req,res){
     res.status(200).send({success:true,msg:"authentication"})

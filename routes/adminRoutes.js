@@ -31,25 +31,12 @@ const storage=multer.diskStorage({
 });
 
 const upload=multer({storage:storage});
-
-
 const adminController=require('../controllers/adminController');
-const managementController=require('../controllers/managementController')
-// const auth=require("../middleware/auth")
 const jwtHelper=require('../config/jwtHelper')
 
 admin_route.post('/register',adminController.insertUser);
 
 admin_route.post('/login',adminController.verifyLogin);
-
-
-// staff management
-admin_route.post('/add-staff',managementController.addStaff);
-admin_route.post('/add-right',managementController.addRights);
-admin_route.get('/right-list',managementController.rightList);
-admin_route.get('/delete-staff',managementController.deletestaff);
-admin_route.get('/edit-staff',managementController.editstaff);
-
 
 admin_route.get('/test',jwtHelper,function(req,res){
     res.status(200).send({success:true,msg:"authentication"})

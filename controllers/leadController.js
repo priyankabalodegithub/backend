@@ -100,6 +100,52 @@ const addLead=async(req,res)=>{
     }
 
 }
+// email exist
+
+const emailExist=async(req,res)=>{
+
+    try{
+       
+        Lead.find({email:req.query.email})
+        .then(async resp=>{
+         if(resp.length!=0){
+           return res.status(200).send({success:false,msg:'Email alredy exist'})
+
+        } else {
+            return res.status(200).send({success:true,msg:'Email not exist'})
+        }
+      })
+
+    }
+    catch(err)
+    {
+       res.status(400).send(err.message)
+    }
+}
+
+// email exist
+
+const contactExist=async(req,res)=>{
+
+    try{
+       
+        Lead.find({primary_contact_number:req.query.primary_contact_number})
+        .then(async resp=>{
+         if(resp.length!=0){
+           return res.status(200).send({success:false,msg:'contact alredy exist'})
+
+        } else {
+            return res.status(200).send({success:true,msg:'contact not exist'})
+        }
+      })
+
+    }
+    catch(err)
+    {
+       res.status(400).send(err.message)
+    }
+}
+
 
 // lead list
 
@@ -225,4 +271,6 @@ module.exports={
     getCountries,
     getStates,
     getCities,
+    emailExist,
+    contactExist
 }

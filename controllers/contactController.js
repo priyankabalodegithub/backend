@@ -97,11 +97,10 @@ const addContact=async(req,res)=>{
 const emailExist=async(req,res)=>{
 
     try{
-       console.log(req.query);
+       
         Contact.find({email:req.query.email})
         .then(async resp=>{
          if(resp.length!=0){
-        //   return res.send({msg:'exist'})
            return res.status(200).send({success:false,msg:'Email alredy exist'})
 
         } else {
@@ -116,29 +115,29 @@ const emailExist=async(req,res)=>{
     }
 }
 
-// Contact.find({email:req.body.email})
-// .then(async resp=>{
-//  if(resp.length!=0){
-//  //   return res.send({msg:'exist'})
-//  res.status(200).send({success:true,msg:'Email alredy exist'})
+// contact exist
 
-//  }
-//  else{
-//      const userData=await contact.save();
-//      if(userData)
+const contactExist=async(req,res)=>{
 
-//      {
-//          const groupCountData=await Group.findById({_id:req.body.group})
-//         const count=groupCountData.count+1;
-//         const userData1= await Group.findByIdAndUpdate({_id:req.body.group},{$set:{count:count}});
-//          res.status(200).send({data:userData,msg:"Data save successfully."})
-//      }
-//      else
-//      {
-//          res.status(200).send({msg:"contact data failed"})
-//      }
-//  }
-// })
+    try{
+       
+        Contact.find({primary_contact_number:req.query.primary_contact_number})
+        .then(async resp=>{
+         if(resp.length!=0){
+           return res.status(200).send({success:false,msg:'contact alredy exist'})
+
+        } else {
+            return res.status(200).send({success:true,msg:'contact not exist'})
+        }
+      })
+
+    }
+    catch(err)
+    {
+       res.status(400).send(err.message)
+    }
+}
+
 // contact list
 const contactList=async(req,res)=>{
     try{
@@ -177,6 +176,7 @@ const contactList=async(req,res)=>{
             $or:[
                 {first_name:{$regex:'.*'+search+'.*',$options:'i'}},
                 {email:{$regex:'.*'+search+'.*',$options:'i'}},
+                {primary_contact_number:{$regex:'.*'+search+'.*',$options:'i'}},
             ]
         })
         .sort(sortObject)
@@ -199,11 +199,10 @@ const contactList=async(req,res)=>{
 const deleteContact=async(req,res)=>{
 
     try{
-       
         const id=req.query.id;
-        await Contact.deleteOne({_id:id});
+       await Contact.deleteOne({_id:id});
     res.status(200).send({success:true,msg:"Contact can be deleted"})
-
+    
     }
     catch(err)
     {
@@ -262,5 +261,6 @@ module.exports={
     getCountries,
     getStates,
     getCities,
-    emailExist
+    emailExist,
+    contactExist
 }

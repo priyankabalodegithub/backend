@@ -2,7 +2,6 @@ const express=require('express');
 const customer_route=express();
 const session=require('express-session');
 
-const paginate=require('jw-paginate')
 const config=require('../config/config');
 
 customer_route.use(session({secret:config.sessionSecret}));
@@ -35,7 +34,6 @@ const upload=multer({storage:storage});
 
 
 const customerController=require('../controllers/customerController');
-const managementController=require('../controllers/managementController')
 // const auth=require("../middleware/auth")
 const jwtHelper=require('../config/jwtHelper')
 
@@ -45,6 +43,8 @@ customer_route.get('/customer-list',customerController.customerList);
 customer_route.get('/delete-customer',customerController.deleteCustomer);
 customer_route.get('/edit-customer',customerController.editCustomer);
 customer_route.put('/edit-customer/:id',customerController.updateCustomer);
+customer_route.get('/exist-customerEmail',customerController.emailExist);
+customer_route.get('/exist-customerContact',customerController.contactExist);
 
 customer_route.get('/test',jwtHelper,function(req,res){
     res.status(200).send({success:true,msg:"authentication"})

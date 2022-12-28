@@ -35,7 +35,6 @@ const upload=multer({storage:storage});
 
 
 const leadController=require('../controllers/leadController');
-const managementController=require('../controllers/managementController')
 // const auth=require("../middleware/auth")
 const jwtHelper=require('../config/jwtHelper')
 
@@ -52,6 +51,8 @@ lead_route.get('/lead-list',leadController.leadList);
 lead_route.get('/delete-lead',leadController.deleteLead);
 lead_route.get('/edit-lead',leadController.editLead);
 lead_route.put('/edit-lead/:id',leadController.updateLead);
+lead_route.get('/exist-leadEmail',leadController.emailExist);
+lead_route.get('/exist-leadContact',leadController.contactExist);
 
 lead_route.get('/test',jwtHelper,function(req,res){
     res.status(200).send({success:true,msg:"authentication"})

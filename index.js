@@ -44,6 +44,10 @@ app.use('/api',businessRoute);
 const serviceRoute=require('./routes/serviceRoute');
 app.use('/api',serviceRoute);
 
+// for staff router
+const staffRoute=require('./routes/staffRoutes');
+app.use('/api',staffRoute);
+
 
 // for user router
 // const userRoute=require('./routers/userRoute')

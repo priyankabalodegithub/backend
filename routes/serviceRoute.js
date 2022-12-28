@@ -44,6 +44,7 @@ service_route.get('/service-list',serviceController.serviceList);
 service_route.get('/delete-service',serviceController.deleteService);
 service_route.get('/edit-service',serviceController.editserviceLoad);
 service_route.put('/edit-service/:id',serviceController.updateService);
+service_route.get('/exist-service',serviceController.serviceExist);
 
 service_route.get('/test',jwtHelper,function(req,res){
     res.status(200).send({success:true,msg:"authentication"})

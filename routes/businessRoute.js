@@ -35,7 +35,6 @@ const upload=multer({storage:storage});
 
 
 const businessController=require('../controllers/businessController');
-// const auth=require("../middleware/auth")
 const jwtHelper=require('../config/jwtHelper')
 
 // business opportunity route
@@ -44,8 +43,7 @@ business_route.get('/business-list',businessController.businessList);
 business_route.get('/delete-business',businessController.deleteBusiness);
 business_route.get('/edit-business',businessController.editBusinessLoad);
 business_route.put('/edit-business/:id',businessController.updateBusiness);
-
-
+business_route.get('/exist-business',businessController.businessExist);
 
 business_route.get('/test',jwtHelper,function(req,res){
     res.status(200).send({success:true,msg:"authentication"})

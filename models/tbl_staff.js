@@ -16,11 +16,11 @@ const staffSchema=new mongoose.Schema({
  },
  
  primary_contact_number:{
-    type:Number,
+    type:String,
     required:true
  },
  secondary_contact_number:{
-    type:Number,
+    type:String,
    
  },
  email:{

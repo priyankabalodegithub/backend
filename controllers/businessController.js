@@ -49,7 +49,28 @@ const businessOpportunity=async(req,res)=>{
         
         res.status(400).send(error.message);
     }
+}
 
+// business exist
+const businessExist=async(req,res)=>{
+
+    try{
+    
+       Business.find({title:req.query.title})
+        .then(async resp=>{
+         if(resp.length!=0){
+           return res.status(200).send({success:false,msg:'business alredy exist'})
+
+        } else {
+            return res.status(200).send({success:true,msg:'business not exist'})
+        }
+      })
+
+    }
+    catch(err)
+    {
+       res.status(400).send(err.message)
+    }
 }
 
 // business opportunity list
@@ -127,5 +148,6 @@ module.exports={
     deleteBusiness,
     editBusinessLoad,
     updateBusiness,
+    businessExist
 }
 
