@@ -87,6 +87,7 @@ const contactExist=async(req,res)=>{
     }
 }
 
+// tables rights
 const rightList=async(req,res)=>
 {
     try{
@@ -196,73 +197,6 @@ const staffList=async(req,res)=>{
     return res.status(500).json({ msg: "Sorry, something went wrong" });
     }
 }
-
-
-// // right list
-// const rightList=async(req,res)=>{
-//     try{
-
-//         var userlist=await Right.aggregate([
-//             {
-//             $lookup:
-//             {
-//                 from : "tbl_staffs",
-//                 localField:"staff_id",
-//                 foreignField:"_id",
-//                 as:"staff_id"
-//             }
-//         }])
-//         console.log(JSON.stringify(userlist));
-
-//     res.status(200).send({success:true,data:userlist});
-
-//     }
-//     catch(err){
-//         console.log(err);
-//         res.status(400).send(err.message);
-//     }
-
-    
-// }
-// // delete staff
-    
-// const deletestaff=async(req,res)=>{
-//     try{
-
-//         const id=req.query.id;
-//         await Right.deleteOne({_id:id});
-//     res.status(200).send({success:true,msg:"Staff can be deleted"})
-
-//     }
-//     catch(err)
-//     {
-//        res.status(400).send(err.message)
-//     }
-// }
-// const editstaff=async(req,res)=>{
-//     try{
-        
-       
-//        const id=req.query.id;
-//        const userData=await Right.findById({_id:id});
-
-//        if(userData){
-//         const rights=await Right.find({_id:id}).populate('staff_id')
-//         res.status(200).send({success:true,group:rights})
-
-//        }
-
-//        else{
-       
-//         res.status(200).send({success:false})
-//        }
-
-//     }
-//     catch(error){
-//         res.status(400).send(error.message);
-//     }
-// }
-
 
 module.exports={
     
