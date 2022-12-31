@@ -11,7 +11,7 @@ staff_id:{
       
  },
  right_detail:{
-    type:String
+    type: 'add' | 'edit' | 'view' | 'delete'
  },
  permission:{
     type:Boolean

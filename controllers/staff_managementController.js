@@ -92,7 +92,7 @@ const rightList=async(req,res)=>
 {
     try{
 
-        const userData=await Right.aggregate([
+        let userData=await Right.aggregate([
             {
                 $lookup:{
                     from:'tbl_modules',
@@ -102,6 +102,32 @@ const rightList=async(req,res)=>
                 }
             }
         ])
+        userData =   userData.map((data) => {
+            return {
+                ...data,
+                moduleName: data.module_id[0].module || '',
+                moduleId: data.module_id[0]._id || ''
+            }
+
+        }).reduce((list, data)=> {
+           const moduleIndex = list.findIndex((lst) => lst.moduleName === data.moduleName);
+           if(moduleIndex === -1) {
+            list.push({
+                moduleName: data.moduleName,
+                moduleId: data.moduleId,
+                childs: [{
+                    _id: data._id,
+                    title: data.title
+                }]
+            })
+           } else {
+            list[moduleIndex].childs.push({
+                _id: data._id,
+                title: data.title
+            })
+           }
+           return list;
+        }, []);
     res.status(200).send({success:true,data:userData});
 
     }

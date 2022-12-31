@@ -67,10 +67,7 @@ const addContact=async(req,res)=>{
                 
         })
 
-           
             const userData=await contact.save();
-           
-        
             if(userData)
 
             {
@@ -202,6 +199,7 @@ const deleteContact=async(req,res)=>{
         const id=req.query.id;
        await Contact.deleteOne({_id:id});
     res.status(200).send({success:true,msg:"Contact can be deleted"})
+    
     
     }
     catch(err)
