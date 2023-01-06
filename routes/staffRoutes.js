@@ -40,8 +40,9 @@ staff_route.post('/add-staff', staffManagementController.addStaff);
 staff_route.post('/add-permission', staffManagementController.addPermission);
 staff_route.get('/staffpermission-list', staffManagementController.staffList);
 staff_route.get('/right-list', staffManagementController.rightList);
-// staff_route.get('/delete-staff', staffManagementController.deletestaff);
-// staff_route.get('/edit-staff', staffManagementController.editstaff);
+staff_route.get('/delete-staff',staffManagementController.deleteStaff);
+staff_route.get('/edit-staff', staffManagementController.editStaff);
+staff_route.put('/edit-staff/:id',staffManagementController.updateStaff);
 
 staff_route.get('/exist-Staffemail',staffManagementController.emailExist);
 staff_route.get('/exist-Staffcontact',staffManagementController.contactExist);

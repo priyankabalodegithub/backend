@@ -1,46 +1,66 @@
 
 const Staff=require('../models/tbl_staff');
 const Right=require('../models/tbl_rights');
-const Permission=require('../models/staff_permission.')
+const Permission=require('../models/staff_permission')
 const bcrypt=require('bcrypt');
 const randomstring=require('randomstring');
 const config=require("../config/config");
 // const nodemailer=require('nodemailer');
 const jwt=require('jsonwebtoken');
+const tbl_module = require('../models/tbl_module');
 
 
 // Add staff
-const addStaff=async(req,res)=>{
-    try{
+const addStaff = async (req, res) => {
+  try {
+    const staff = new Staff({
+      first_name: req.body.first_name,
+      last_name: req.body.last_name,
+      designation: req.body.designation,
+      primary_contact_number: req.body.primary_contact_number,
+      secondary_contact_number: req.body.secondary_contact_number,
+      email: req.body.email,
+    });
+    staff.save().then(async (userData) => {
+      let permissionArray = [];
+      req.body.permissions.forEach((data) => {
+        data.childs.forEach((childData) => {
+          const childPermission = childData.permission.map(
+            (_permissionList) => {
+              console.log(_permissionList)
+              return {
+                permission: _permissionList.isSelected,
+                right_detail: _permissionList.name,
+                staff_id: userData._id,
+                rights_id: childData._id,
+              }; 
+              
+            }
             
-            const staff=new Staff({
-                first_name:req.body.first_name,
-                last_name:req.body. last_name,
-                designation:req.body.designation,
-                primary_contact_number:req.body.primary_contact_number,     
-                secondary_contact_number:req.body.secondary_contact_number,
-                email:req.body.email
-        })
-            const userData=await staff.save();
+          );
+          console.log(childPermission)
+         
 
-            if(userData)
-            {
-               
-                res.status(200).send({success:true,data:userData,msg:"Data save successfully."})
-            }
-            else
-            {
-                res.status(200).send({msg:"group data failed"})
-            }
-    
-    }
-    catch(error)
-    {
-        
-        res.status(400).send(error.message);
-    }
-
-}
+          permissionArray = [...permissionArray, ...childPermission];
+        });
+      });
+      permissionArray = permissionArray.filter((data) => data);
+      const permissionData = await Permission.insertMany(permissionArray);
+      console.log("permissionData", permissionData);
+      if (userData && permissionData) {
+        res.status(200).send({
+          success: true,
+          data: userData,
+          msg: "Data save successfully.",
+        });
+      } else {
+        res.status(200).send({ msg: "group data failed" });
+      }
+    });
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+};
 
 // email exist
 const emailExist=async(req,res)=>{
@@ -86,48 +106,54 @@ const contactExist=async(req,res)=>{
        res.status(400).send(err.message)
     }
 }
+// get base structure
+const getRightList = async() => {
+  let userData=await Right.aggregate([
+    {
+        $lookup:{
+            from:'tbl_modules',
+            localField:'module_id',
+            foreignField:'_id',
+            as:'module_id'
+        }
+    }
+])
+userData =   userData.map((data) => {
+    return {
+        ...data,
+        moduleName: data.module_id[0].module || '',
+        moduleId: data.module_id[0]._id || ''
+    }
+
+}).reduce((list, data)=> {
+   const moduleIndex = list.findIndex((lst) => lst.moduleName === data.moduleName);
+   if(moduleIndex === -1) {
+    list.push({
+        moduleName: data.moduleName,
+        moduleId: data.moduleId,
+        childs: [{
+            _id: data._id,
+            title: data.title
+        }]
+    })
+   } else {
+    list[moduleIndex].childs.push({
+        _id: data._id,
+        title: data.title
+    })
+   }
+   return list;
+}, []);
+
+return userData;
+}
 
 // tables rights
 const rightList=async(req,res)=>
 {
     try{
 
-        let userData=await Right.aggregate([
-            {
-                $lookup:{
-                    from:'tbl_modules',
-                    localField:'module_id',
-                    foreignField:'_id',
-                    as:'module_id'
-                }
-            }
-        ])
-        userData =   userData.map((data) => {
-            return {
-                ...data,
-                moduleName: data.module_id[0].module || '',
-                moduleId: data.module_id[0]._id || ''
-            }
-
-        }).reduce((list, data)=> {
-           const moduleIndex = list.findIndex((lst) => lst.moduleName === data.moduleName);
-           if(moduleIndex === -1) {
-            list.push({
-                moduleName: data.moduleName,
-                moduleId: data.moduleId,
-                childs: [{
-                    _id: data._id,
-                    title: data.title
-                }]
-            })
-           } else {
-            list[moduleIndex].childs.push({
-                _id: data._id,
-                title: data.title
-            })
-           }
-           return list;
-        }, []);
+        let userData= await getRightList();
     res.status(200).send({success:true,data:userData});
 
     }
@@ -169,67 +195,206 @@ const addPermission=async(req,res)=>{
 
 }
 // staff list
-const staffList=async(req,res)=>{
-    try{
-        var sortObject = {};
-        var stype = req.query.sorttype ? req.query.sorttype : '_id';
-        var sdir = req.query.sortdirection ? req.query.sortdirection : 1;
-        sortObject[stype] = sdir;
+const staffList = async (req, res) => {
+  try {
+    var sortObject = {};
+    var stype = req.query.sorttype ? req.query.sorttype : "_id";
+    var sdir = req.query.sortdirection ? req.query.sortdirection : 1;
+    sortObject[stype] = sdir;
 
-        var search='';
-        if(req.query.search){
-            search=req.query.search
-        }
+    var search = "";
+    if (req.query.search) {
+      search = req.query.search;
+    }
 
-        const pageNumber = parseInt(req.query.pageNumber) || 0;
-        const limit = parseInt(req.query.limit) || 4;
-        const result = {};
-        const totalPosts = await Permission.countDocuments().exec();
-        let startIndex = pageNumber * limit;
-        const endIndex = (pageNumber + 1) * limit;
-        result.totalPosts = totalPosts;
-        if (startIndex > 0) {
-          result.previous = {
-            pageNumber: pageNumber - 1,
-            limit: limit,
-          };
-        }
-        if (endIndex < (await Permission.countDocuments().exec())) {
-          result.next = {
-            pageNumber: pageNumber + 1,
-            limit: limit,
-          };
-        }
-        result.data = await Permission.find()
-        .populate('staff_id rights_id')
-        .find({
-            $or:[
-                {first_name:{$regex:'.*'+search+'.*',$options:'i'}},
-                {email:{$regex:'.*'+search+'.*',$options:'i'}},
-                {primary_contact_number:{$regex:'.*'+search+'.*',$options:'i'}},
-            ]
+    const pageNumber = parseInt(req.query.pageNumber) || 0;
+    const limit = parseInt(req.query.limit) || 4;
+    const result = {};
+    const totalPosts = await Staff.countDocuments().exec();
+    let startIndex = pageNumber * limit;
+    const endIndex = (pageNumber + 1) * limit;
+    result.totalPosts = totalPosts;
+    if (startIndex > 0) {
+      result.previous = {
+        pageNumber: pageNumber - 1,
+        limit: limit,
+      };
+    }
+    if (endIndex < (await Staff.countDocuments().exec())) {
+      result.next = {
+        pageNumber: pageNumber + 1,
+        limit: limit,
+      };
+    }
+    const staffList = await Staff.find()
+      .sort(sortObject)
+      .skip(startIndex)
+      .limit(limit)
+      .find({
+        $or: [
+          { first_name: { $regex: ".*" + search + ".*", $options: "i" } },
+          { email: { $regex: ".*" + search + ".*", $options: "i" } },
+          {
+            primary_contact_number: {
+              $regex: ".*" + search + ".*",
+              $options: "i",
+            },
+          },
+        ],
+      })
+      .exec();
+
+    const permissionList = await Promise.all(
+      staffList?.map(async (lst) => {
+        const permission = await Permission.find({
+          staff_id: lst._id,
         })
-        .sort(sortObject)
-        .skip(startIndex)
-        .limit(limit)
-        .exec();
-      result.rowsPerPage = limit;
-      return res.send({ msg: "Posts Fetched successfully", data: result});
-
-    }
-
-    catch(error){
-        console.log(error);
+          .populate("rights_id")
+          .populate({
+            path: "rights_id",
+            populate: {
+              path: "module_id",
+              model: "Tbl_Module",
+            },
+          })
+          .exec();
+          const {_doc: staffDetails} = lst;
+        return {
+          ...staffDetails,
+          permission,
+        };
+      })
+    );
+    result.rowsPerPage = limit;
+    return res.send({
+      msg: "Posts Fetched successfully",
+      data: { ...result, data: permissionList },
+    });
+  } catch (error) {
+    console.log(error);
     return res.status(500).json({ msg: "Sorry, something went wrong" });
+  }
+};
+
+
+const mapChildData = (moduleDetails, permissionList) => {
+ const data =  moduleDetails.childs.map((subChild) => {
+    const permissionDetails = permissionList.filter((_pDeatils) => _pDeatils.rights_id._id.equals(subChild._id) ? true : false);
+    return {
+      ...subChild,
+      permissions: [...permissionDetails]
     }
+  })
+
+  return data;
 }
 
+// delete staff
+const deleteStaff=async(req,res)=>{
+
+  try{
+
+    const id=req.query.id;
+    const userData= await Staff.deleteOne({_id:id});
+    const permission = await Permission.deleteMany({
+    staff_id: id,
+    })
+      .populate("rights_id")
+      .populate({
+        path: "rights_id",
+        populate: {
+          path: "module_id",
+          model: "Tbl_Module",
+        },
+      })
+      .exec();
+    
+    return res.send({
+      msg: " delete data successfully",
+      
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ msg: "Sorry, something went wrong" });
+  }
+  
+}
+
+// staff edit & update
+
+const editStaff=async(req,res)=>{
+
+  try{
+
+    const id=req.query.id;
+    const userData=await Staff.find({_id:id})
+    const permission = await Permission.find({
+      staff_id: id,
+    })
+      .populate("rights_id")
+      .populate({
+        path: "rights_id",
+        populate: {
+          path: "module_id",
+          model: "Tbl_Module",
+        },
+      })
+      .exec();
+      let {_doc: userDetails} = userData[0];
+    // console.log(userDetails)
+    const permissionList = {
+      ...userDetails,
+      permission
+    }
+
+    let permissionBaseStructure = await getRightList();
+    permissionList.permission = permissionBaseStructure.map((moduleDetails) => {
+      return {
+        ...moduleDetails,
+        childs: mapChildData(moduleDetails, permissionList.permission)
+      }
+    })
+
+    return res.send({
+      msg: " fetch data successfully",
+      staff: permissionList,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ msg: "Sorry, something went wrong" });
+  }
+  
+}
+// update staff
+const updateStaff=async(req,res)=>{
+  try{
+
+     const StaffData= await Staff.findByIdAndUpdate({_id:req.params.id},{$set:{first_name:req.body.first_name, last_name:req.body.last_name,designation:req.body.designation,
+     primary_contact_number:req.body.primary_contact_number,secondary_contact_number:req.body.secondary_contact_number,email:req.body.email,
+    }})
+    const permission = await Permission.updateMany({staff_id:req.params.id},{$set:{ permission:req.body.permission}})
+
+    return res.send({
+      msg: " update data successfully",
+     
+    });
+
+  }
+  catch (error) {
+    console.log(error);
+    return res.status(500).json({ msg: "Sorry, something went wrong" });
+  }
+}
 module.exports={
     
     addStaff,
     rightList,
     addPermission,
     staffList,
+    editStaff,
+    updateStaff,
+    deleteStaff,
+
     // addRights,
     // rightList,
     // deletestaff,
