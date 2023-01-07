@@ -246,10 +246,10 @@ const staffList = async (req, res) => {
 
     const permissionList = await Promise.all(
       staffList?.map(async (lst) => {
-        const permission = await Permission.find({
+        let permission = await Permission.find({
           staff_id: lst._id,
         })
-          .populate("rights_id")
+          // .populate("rights_id")
           .populate({
             path: "rights_id",
             populate: {
@@ -259,9 +259,26 @@ const staffList = async (req, res) => {
           })
           .exec();
           const {_doc: staffDetails} = lst;
+          const permissionModuleList = []
+          permission = permission.map((details) => {
+            let _details =   {
+              _id: details._id,
+              name: details.right_detail,
+              permission: details.permission,
+              childModuleName: details.rights_id.title
+            }
+            if(details.permission === true) {
+              const childModule = permissionModuleList.find((moduleName) => moduleName === _details.childModuleName);
+              if(!childModule) {
+                permissionModuleList.push(_details.childModuleName)
+              }
+            }
+            return _details;
+          });
         return {
           ...staffDetails,
-          permission,
+          // permission,
+          permissionModuleList: permissionModuleList.join(', ')
         };
       })
     );
@@ -372,7 +389,25 @@ const updateStaff=async(req,res)=>{
      const StaffData= await Staff.findByIdAndUpdate({_id:req.params.id},{$set:{first_name:req.body.first_name, last_name:req.body.last_name,designation:req.body.designation,
      primary_contact_number:req.body.primary_contact_number,secondary_contact_number:req.body.secondary_contact_number,email:req.body.email,
     }})
-    const permission = await Permission.updateMany({staff_id:req.params.id},{$set:{ permission:req.body.permission}})
+    
+    let updateList = [];
+    req.body.permissions.map((data) => {
+      data.childs.map((child) => {
+        if(child) {
+          updateList.push(...child.permission)
+        }
+      })
+    })
+    updateList = await  Promise.all(updateList.map(async(data) => {
+      // const update =   {
+      //   _id:data._id,
+      //   permission: data.isSelected
+      // }
+     return await Permission.findByIdAndUpdate({_id:data._id},{$set:{permission: data.isSelected}});
+    }))
+    console.log(updateList);
+    // const permission =
+    // console.log(permission);
 
     return res.send({
       msg: " update data successfully",
