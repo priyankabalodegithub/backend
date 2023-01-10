@@ -293,6 +293,19 @@ const staffList = async (req, res) => {
   }
 };
 
+//simple staff list
+
+const allstaffList=async(req,res)=>{
+  try{
+
+      const userData=await Staff.find();
+  res.status(200).send({success:true,data:userData});
+
+  }
+  catch(err){
+      res.status(400).send(err.message);
+  }
+}
 
 const mapChildData = (moduleDetails, permissionList) => {
  const data =  moduleDetails.childs.map((subChild) => {
@@ -429,11 +442,7 @@ module.exports={
     editStaff,
     updateStaff,
     deleteStaff,
-
-    // addRights,
-    // rightList,
-    // deletestaff,
-    // editstaff,
+    allstaffList,
     emailExist,
     contactExist
   
