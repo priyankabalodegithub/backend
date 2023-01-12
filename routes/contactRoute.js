@@ -40,6 +40,7 @@ const jwtHelper=require('../config/jwtHelper')
 
 // contact route
 contact_route.post('/add_contact',contactController.addContact);
+contact_route.get('/all-contact',contactController.allContact);
 contact_route.get('/contact-list',contactController.contactList);
 contact_route.get('/delete-contact',contactController.deleteContact);
 contact_route.get('/edit-contact',contactController.editContact);

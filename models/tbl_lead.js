@@ -40,27 +40,28 @@ const leadSchema=new mongoose.Schema({
    }],
      status:{
        type:Boolean,
-       required:true
+       default:true
+       
     },
     address1:{
        type:String,
-       required:true
+      
     },
     address2:{
        type:String,
-       required:true
+     
     },
     taluka:{
        type:String,
-       required:true
+      
     },
     village:{
        type:String,
-       required:true
+       
     },
     zipcode:{
        type:String,
-       required:true
+      
     },
     city: {
       type:String

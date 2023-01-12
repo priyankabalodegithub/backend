@@ -146,6 +146,18 @@ const contactExist=async(req,res)=>{
     }
 }
 
+// all lead list
+const allLead=async(req,res)=>{
+    try{
+
+        const userData=await Lead.find();
+    res.status(200).send({success:true,data:userData});
+
+    }
+    catch(err){
+        res.status(400).send(err.message);
+    }
+}
 
 // lead list
 
@@ -272,5 +284,6 @@ module.exports={
     getStates,
     getCities,
     emailExist,
-    contactExist
+    contactExist,
+    allLead
 }

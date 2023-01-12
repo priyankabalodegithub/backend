@@ -135,6 +135,20 @@ const contactExist=async(req,res)=>{
     }
 }
 
+// all contact list
+
+const allContact=async(req,res)=>{
+    try{
+
+        const userData=await Contact.find();
+    res.status(200).send({success:true,data:userData});
+
+    }
+    catch(err){
+        res.status(400).send(err.message);
+    }
+}
+
 // contact list
 const contactList=async(req,res)=>{
     try{
@@ -260,5 +274,6 @@ module.exports={
     getStates,
     getCities,
     emailExist,
-    contactExist
+    contactExist,
+    allContact
 }

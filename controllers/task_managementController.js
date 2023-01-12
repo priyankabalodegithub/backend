@@ -118,6 +118,28 @@ const addAction=async(req,res)=>{
     }
 }
 
+// action already exist
+
+const actionExist=async(req,res)=>{
+
+    try{
+    
+       Action.find({action:req.query.action})
+        .then(async resp=>{
+         if(resp.length!=0){
+           return res.status(200).send({success:false,msg:'action alredy exist'})
+
+        } else {
+            return res.status(200).send({success:true,msg:'action not exist'})
+        }
+      })
+
+    }
+    catch(err)
+    {
+       res.status(400).send(err.message)
+    }
+}
 
 // action list
 
@@ -167,15 +189,71 @@ const addTask=async(req,res)=>{
             {
                 res.status(200).send({msg:"contact data failed"})
             }
-    
     }
     catch(error)
     {
-        
         res.status(400).send(error.message);
     }
 
 }
+// task list
+
+const taskList=async(req,res)=>{
+   
+    try{
+        var sortObject = {};
+        var stype = req.query.sorttype ? req.query.sorttype : '_id';
+        var sdir = req.query.sortdirection ? req.query.sortdirection : 1;
+        sortObject[stype] = sdir;
+
+        
+        var search='';
+        if(req.query.search){
+            search=req.query.search
+        }
+
+        const pageNumber = parseInt(req.query.pageNumber) || 0;
+        const limit = parseInt(req.query.limit) || 4;
+        const result = {};
+        const totalPosts = await Task.countDocuments().exec();
+        let startIndex = pageNumber * limit;
+        const endIndex = (pageNumber + 1) * limit;
+        result.totalPosts = totalPosts;
+        if (startIndex > 0) {
+          result.previous = {
+            pageNumber: pageNumber - 1,
+            limit: limit,
+          };
+        }
+        if (endIndex < (await Task.countDocuments().exec())) {
+          result.next = {
+            pageNumber: pageNumber + 1,
+            limit: limit,
+          };
+        }
+        result.data = await Task.find()
+        .populate('contact_source action business_opportunity sales_phase assign_task_to')
+        .find({
+            $or:[
+                {first_name:{$regex:'.*'+search+'.*',$options:'i'}},
+                {email:{$regex:'.*'+search+'.*',$options:'i'}},
+            ]
+        })
+        .sort(sortObject)
+        .skip(startIndex)
+        .limit(limit)
+        .exec();
+      result.rowsPerPage = limit;
+      return res.send({ msg: "Posts Fetched successfully", data: result});
+       
+    }
+
+    catch(error){
+        console.log(error);
+    return res.status(500).json({ msg: "Sorry, something went wrong" });
+    }
+}
+
 
 module.exports={
     contactSource,
@@ -184,6 +262,8 @@ module.exports={
     salesList,
     addAction,
     actionList,
-    addTask 
+    addTask,
+    actionExist,
+    taskList 
 }
 

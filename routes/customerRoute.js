@@ -39,6 +39,7 @@ const jwtHelper=require('../config/jwtHelper')
 
 // customer route
 customer_route.post('/add_customer',customerController.addCustomer);
+customer_route.get('/allCustomer-list',customerController.allCustomer);
 customer_route.get('/customer-list',customerController.customerList);
 customer_route.get('/delete-customer',customerController.deleteCustomer);
 customer_route.get('/edit-customer',customerController.editCustomer);

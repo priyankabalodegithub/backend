@@ -47,6 +47,7 @@ lead_route.get('/get-cities',leadController.getCities)
 
 // lead route
 lead_route.post('/add_lead',leadController.addLead);
+lead_route.get('/allLead-list',leadController.allLead);
 lead_route.get('/lead-list',leadController.leadList);
 lead_route.get('/delete-lead',leadController.deleteLead);
 lead_route.get('/edit-lead',leadController.editLead);

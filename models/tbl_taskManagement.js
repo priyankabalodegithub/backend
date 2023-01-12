@@ -14,7 +14,7 @@ subject:{
     type:String
  },
  estimated_date:{
-    type:Date
+    type:String
  },
  reason_to_change_estimated_date:{
     type:String
@@ -23,9 +23,12 @@ subject:{
     type:mongoose.Schema.Types.ObjectId,
     ref:'Tbl_ContactSource'       
  },
- selected_list:{
-    type:String
- },
+ selected_list:[{
+   type:mongoose.Schema.Types.ObjectId,
+   ref:{type:[mongoose.Schema.Types.ObjectId],refPath:'model_type'},
+   model_type:{type:String,enum:['Tbl_Contact','Tbl_Lead','Tbl_Customer']},
+   required:true
+ }],
  business_opportunity:[{
     type:mongoose.Schema.Types.ObjectId,ref:'Tbl_Business_Opportunity',
      required:true
@@ -39,7 +42,7 @@ subject:{
     ref:'Tbl_TaskAction'       
  },
  action_date:{
-    type:Date
+    type:String
  },
  remarks:{
     type:String
@@ -49,8 +52,6 @@ subject:{
     ref:'Staff_Permission'
 
  }
-
 }
- 
 );
 module.exports=mongoose.model('Tbl_TaskManagement',taskManagementSchema)

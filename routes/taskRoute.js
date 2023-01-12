@@ -43,9 +43,10 @@ task_route.get('/sales-list', taskManagementController.salesList);
 task_route.post('/add-action',taskManagementController.addAction);
 task_route.get('/action-list', taskManagementController.actionList);
 task_route.post('/add-task', taskManagementController.addTask);
+task_route.get('/task-list', taskManagementController.taskList);
 // task_route.put('/edit-staff/:id',taskManagementController.updateStaff);
 
-// task_route.get('/exist-Staffemail',taskManagementController.emailExist);
+task_route.get('/exist-taskaction',taskManagementController.actionExist);
 // task_route.get('/exist-Staffcontact',taskManagementController.contactExist);
 
 // task_route.get('/test',jwtHelper,function(req,res){

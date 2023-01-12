@@ -39,12 +39,12 @@ const contactSchema=new mongoose.Schema({
      required:true
  }],
   status:{
-    type:Boolean
-   //  required:true
+    type:Boolean,
+    default:true
  },
  address1:{
     type:String,
-    required:true
+   //  required:true
  },
  address2:{
     type:String,
@@ -60,20 +60,20 @@ const contactSchema=new mongoose.Schema({
  },
  zipcode:{
     type:String,
-    required:true
+   //  required:true
  },
  
  city: {
    type:String,
-   required:true
+   // required:true
 },
 state:{
    type:String,
-   required:true
+   // required:true
 },
 country:{
    type:String,
-   required:true
+   // required:true
 },
  
 type:{

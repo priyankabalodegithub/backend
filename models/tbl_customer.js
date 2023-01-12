@@ -44,7 +44,7 @@ const customerSchema=new mongoose.Schema({
     },
     address1:{
        type:String,
-       required:true
+       
     },
     address2:{
        type:String,
@@ -60,7 +60,7 @@ const customerSchema=new mongoose.Schema({
     },
     zipcode:{
        type:String,
-       required:true
+      
     },
     city:{
        type:String,
