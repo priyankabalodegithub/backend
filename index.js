@@ -52,6 +52,13 @@ app.use('/api',staffRoute);
 const sourceRoute=require('./routes/taskRoute');
 app.use('/api',sourceRoute);
 
+// for dealLost router
+const dealRoute=require('./routes/dealLostRoute');
+app.use('/api',dealRoute);
+
+// for template router
+const templateRoute=require('./routes/templateRoute');
+app.use('/api',templateRoute);
 
 // for user router
 // const userRoute=require('./routers/userRoute')

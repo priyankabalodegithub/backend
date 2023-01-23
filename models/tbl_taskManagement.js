@@ -2,56 +2,99 @@ const mongoose=require('mongoose')
 const taskManagementSchema=new mongoose.Schema({
   
 subject:{
-    type:String
+    type:String,
+    required:true  
  },
  add_task_for:{
-    type:String
+    type:String,
+    required:true 
+   
  },
  set_task_priority:{
-    type:String
+    type:String,
+    required:true  
  },
  reason_to_change_task_priority:{
-    type:String
+    type:String,
+      // required:true  
+    
  },
  estimated_date:{
-    type:String
+    type:String,
+    required:true  
  },
  reason_to_change_estimated_date:{
-    type:String
+    type:String,
+      // required:true  
+     
  },
- contact_source:{
+ contact_source:[{
     type:mongoose.Schema.Types.ObjectId,
-    ref:'Tbl_ContactSource'       
- },
+    ref:'Tbl_ContactSource',
+    required:true       
+ }],
  selected_list:[{
    type:mongoose.Schema.Types.ObjectId,
-   ref:{type:[mongoose.Schema.Types.ObjectId],refPath:'model_type'},
-   model_type:{type:String,enum:['Tbl_Contact','Tbl_Lead','Tbl_Customer']},
+   enum:['Tbl_Contact','Tbl_Lead','Tbl_Customer'],
    required:true
  }],
  business_opportunity:[{
     type:mongoose.Schema.Types.ObjectId,ref:'Tbl_Business_Opportunity',
      required:true
  }],
- sales_phase:{
+ sales_phase:[{
     type:mongoose.Schema.Types.ObjectId,
-    ref:'Tbl_SalesPhase'       
- },
- action:{
+    ref:'Tbl_SalesPhase' ,
+     required:true      
+ }],
+ action:[{
     type:mongoose.Schema.Types.ObjectId,
-    ref:'Tbl_TaskAction'       
- },
+    ref:'Tbl_TaskAction',  
+    required:true      
+ }],
  action_date:{
-    type:String
+    type:String,
+    required:true  
  },
  remarks:{
     type:String
  },
- assign_task_to:{
+ assign_task_to:[{
     type:mongoose.Schema.Types.ObjectId,
-    ref:'Staff_Permission'
-
- }
+    ref:'Tbl_Staff',
+    required:true  
+ }],
+ budget:{
+   type:Number
+ },
+ client_firstName:{
+   type:String,
+   // required:true  
+ },
+ client_lastName:{
+   type:String,
+   // required:true  
+ },
+ client_contactNumber:{
+   type:String,
+   // required:true  
+ },
+ client_email:{
+   type:String,
+   // required:true  
+ },
+ level_of_urgency:{
+  type:String,
+//   required:true  
+ },
+ task_status:{
+   type:Number,
+   default:1
+ },
+reason_for_dealLost:{
+   type:String,
+    
+},
 }
 );
 module.exports=mongoose.model('Tbl_TaskManagement',taskManagementSchema)

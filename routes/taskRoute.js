@@ -44,7 +44,9 @@ task_route.post('/add-action',taskManagementController.addAction);
 task_route.get('/action-list', taskManagementController.actionList);
 task_route.post('/add-task', taskManagementController.addTask);
 task_route.get('/task-list', taskManagementController.taskList);
-// task_route.put('/edit-staff/:id',taskManagementController.updateStaff);
+task_route.get('/edit-task',taskManagementController.editTask);
+task_route.put('/edit-task/:id',taskManagementController.updateTask);
+task_route.get('/delete-task',taskManagementController.deleteTask);
 
 task_route.get('/exist-taskaction',taskManagementController.actionExist);
 // task_route.get('/exist-Staffcontact',taskManagementController.contactExist);

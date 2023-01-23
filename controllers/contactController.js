@@ -211,7 +211,7 @@ const deleteContact=async(req,res)=>{
 
     try{
         const id=req.query.id;
-       await Contact.deleteOne({_id:id});
+       const userData= await Contact.deleteOne({_id:id});
     res.status(200).send({success:true,msg:"Contact can be deleted"})
     
     
