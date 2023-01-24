@@ -17,12 +17,12 @@ const templateSchema=new mongoose.Schema({
    required:true
 },
 
-documents:{
+document:{
    type:String,
   
 },
 image:{
-   type:String,
+   data:String,
   
 }
   
