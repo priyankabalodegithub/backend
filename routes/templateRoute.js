@@ -10,53 +10,50 @@ const path=require("path");
 
 template_route.use(express.static('public'));
 
-const storage=multer.diskStorage({
-    destination:function(req,file,cb){
-        cb(null,path.join(__dirname,'../public/templateimages'),function(error,success){
-            if(error) throw error
-        });
-    },
 
-    filename:function(req,file,cb){
-        const name=Date.now()+'-'+file.originalname;
-        cb(null,name,function(error1,success1){
-            if(error1) throw error1
-        })
-    }
-});
-const storage1=multer.diskStorage({
-    destination:function(req,file,cb){
-        cb(null,path.join(__dirname,'../public/documents'),function(error,success){
-            if(error) throw error
-        });
+const storage = multer.diskStorage({
+    destination:function(req, file, cb){
+        if(file.mimetype === 'image/jpeg' 
+        || file.mimetype === 'image/png'){
+            cb(null,path.join(__dirname,'../public/image'));
+        }
+        else{
+            cb(null,path.join(__dirname,'../public/document'));
+        }
     },
-
     filename:function(req,file,cb){
-        const name=Date.now()+'-'+file.originalname;
-        cb(null,name,function(error1,success1){
-            if(error1) throw error1
-        })
+        const name = Date.now()+'-'+file.originalname;
+        cb(null,name);
     }
 });
 
-const fileFilter=(req,file,cb)=>{
-    (file.mimetype==='application/msword' 
-    || file.mimetype==='application/vnd.ms-excel'
-    ||  file.mimetype==='application/pdf')
-    ? cb(null,true)
-    : cb(null,false)
+const fileFilter = (req,file,cb) => {
+    if (file.fieldname === "image") {
+        (file.mimetype === 'image/jpeg' 
+         || file.mimetype === 'image/png')
+        ? cb(null,true)
+        : cb(null,false);
+    }
+    else if(file.fieldname === "document"){
+        (file.mimetype==='application/msword' 
+            || file.mimetype==='application/vnd.ms-excel'
+            ||  file.mimetype==='application/pdf')
+        ? cb(null,true)
+        : cb(null,false);
+    }
 }
-const upload=multer({storage:storage});
-const uploadDoc=multer({
-    storage:storage1,
+
+const upload = multer({
+    storage:storage,
     fileFilter:fileFilter
- });
+}).fields([{ name: 'document', maxCount: 1 }, { name: 'image', maxCount: 1 }]);
+
 const tempalteController=require('../controllers/templateController');
 const {docValidation}=require('../helpers/validation')
-
-template_route.post('/add-template',upload.single('image'),tempalteController.addTemplate);
+template_route.post('/add-template',upload,docValidation,tempalteController.addTemplate);
 template_route.get('/template-list',tempalteController.templateList);
 template_route.get('/edit-template',tempalteController.editTemplate);
+template_route.get('/delete-template',tempalteController.deleteTemplate);
 // template_route.put('/edit-template/:id',tempalteController.updateTemplate);
 
 template_route.get('/language-list',tempalteController.languageList);

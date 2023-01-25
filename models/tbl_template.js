@@ -22,8 +22,13 @@ document:{
   
 },
 image:{
-   data:String,
-  
+   type:String,
+},
+doc_type:{
+ type:String
+},
+is_send:{
+   type:Number
 }
   
 });

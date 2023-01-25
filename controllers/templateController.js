@@ -15,9 +15,10 @@ const addTemplate=async(req,res)=>{
                 template_name:req.body.template_name,
                 language:req.body.language,
                 template_message:req.body.template_message,
-                // document:req.file.filename,
-                image:req.file.filename
-                
+                image: req.files.image[0].filename,
+                document:req.files.document[0].filename, 
+                doc_type:req.body.doc_type,
+                is_send:req.body.is_send
         })
             const userData=await template.save();
 
@@ -99,6 +100,21 @@ const templateList=async(req,res)=>{
     }
 }
 
+// delete template
+const deleteTemplate=async(req,res)=>{
+    try{
+
+        const id=req.query.id;
+        await Template.deleteOne({_id:id});
+    res.status(200).send({success:true,msg:"template can be deleted"})
+
+    }
+    catch(err)
+    {
+       res.status(400).send(err.message)
+    }
+}
+
 // edit template
 const editTemplate=async(req,res)=>{
     try{
@@ -162,6 +178,7 @@ module.exports={
     languageList,
     templateList,
     editTemplate,
+    deleteTemplate
     // updateTemplate
 }
 
