@@ -8,8 +8,10 @@ template_route.use(bodyParser.urlencoded({extended:true}));
 const multer=require('multer');
 const path=require("path");
 
-template_route.use(express.static('public'));
 
+template_route.use(express.static('public'));
+// template_route.use('/image', express.static('./image'));
+// template_route.use('/image', express.static('../public/image'));
 
 const storage = multer.diskStorage({
     destination:function(req, file, cb){
@@ -54,7 +56,7 @@ template_route.post('/add-template',upload,docValidation,tempalteController.addT
 template_route.get('/template-list',tempalteController.templateList);
 template_route.get('/edit-template',tempalteController.editTemplate);
 template_route.get('/delete-template',tempalteController.deleteTemplate);
-// template_route.put('/edit-template/:id',tempalteController.updateTemplate);
+template_route.put('/edit-template/:id',upload,tempalteController.updateTemplate);
 
 template_route.get('/language-list',tempalteController.languageList);
 

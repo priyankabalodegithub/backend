@@ -163,6 +163,11 @@ const customerList=async(req,res)=>{
         var stype = req.query.sorttype ? req.query.sorttype : '_id';
         var sdir = req.query.sortdirection ? req.query.sortdirection : 1;
         sortObject[stype] = sdir;
+
+        var search='';
+        if(req.query.search){
+            search=req.query.search
+        }
         const pageNumber = parseInt(req.query.pageNumber) || 0;
         const limit = parseInt(req.query.limit) || 4;
         const result = {};
@@ -184,6 +189,14 @@ const customerList=async(req,res)=>{
         }
         result.data = await Customer.find()
         .populate('group service_offered')
+        .find({
+            $or:[
+                {first_name:{$regex:'.*'+search+'.*',$options:'i'}},
+                {email:{$regex:'.*'+search+'.*',$options:'i'}},
+                {primary_contact_number:{$regex:'.*'+search+'.*',$options:'i'}},
+
+            ]
+        })
         .sort(sortObject)
         .skip(startIndex)
         .limit(limit)

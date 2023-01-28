@@ -1,6 +1,7 @@
 const Template=require('../models/tbl_template');
 const Language=require('../models/tbl_language');
 const {validationResult}=require('express-validator');
+const path=require("path");
 
 // add Template
 
@@ -77,7 +78,6 @@ const templateList=async(req,res)=>{
           };
         }
         result.data = await Template.find()
-       
         .find({
             $or:[
                 {template_name :{$regex:'.*'+search+'.*',$options:'i'}},
@@ -90,6 +90,13 @@ const templateList=async(req,res)=>{
         .limit(limit)
         .exec();
       result.rowsPerPage = limit;
+      result.data = result.data.map((lst) => {
+        const {_doc: details} = lst;
+        return {
+            ...details,
+            imageUrl: path.join('http://', req.get('host'), 'image', details.image)
+        };
+      })
       return res.send({ msg: "Posts Fetched successfully", data: result});
        
     }
@@ -139,25 +146,27 @@ const editTemplate=async(req,res)=>{
 }
 // update list
 
-// const updateTemplate=async(req,res)=>{
-//     try{
+const updateTemplate=async(req,res)=>{
+    try{
 
-//        const userData= await Template.findByIdAndUpdate({_id:req.params.id},
-//         {$set:{
-//             template_created_for:req.body.template_created_for, 
-//             template_name:req.body.template_name,
-//             language:req.body.language,
-//             template_message:req.body.template_message,
-//             document:req.body.document,
-//             image:req.body.image
-//         }})
-//        res.status(200).send({sucess:true,msg:"sucessfully updated",updateData:userData})
+       const userData= await Template.findByIdAndUpdate({_id:req.params.id},
+        {$set:{
+            template_created_for:req.body.template_created_for, 
+            template_name:req.body.template_name,
+            language:req.body.language,
+            template_message:req.body.template_message,
+            image: req.files.image[0].filename,
+            document:req.files.document[0].filename,
+            doc_type:req.body.doc_type,
+            is_send:req.body.is_send
+        }})
+       res.status(200).send({sucess:true,msg:"sucessfully updated",updateData:userData})
 
-//     }
-//     catch(error){
-//         res.status(400).send(error.message);
-//     }
-// }
+    }
+    catch(error){
+        res.status(400).send(error.message);
+    }
+}
 // languages list
 
 const languageList=async(req,res)=>{
@@ -178,7 +187,7 @@ module.exports={
     languageList,
     templateList,
     editTemplate,
-    deleteTemplate
-    // updateTemplate
+    deleteTemplate,
+    updateTemplate
 }
 

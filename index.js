@@ -60,6 +60,9 @@ app.use('/api',dealRoute);
 const templateRoute=require('./routes/templateRoute');
 app.use('/api',templateRoute);
 
+app.use(express.static('public'));
+app.use('/image', express.static('image'));
+app.use('/document', express.static('document'));
 // for user router
 // const userRoute=require('./routers/userRoute')
 // app.use('/api',userRoute);
