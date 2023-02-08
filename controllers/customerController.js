@@ -1,5 +1,5 @@
 
-const Customer=require('../models/tbl_customer');
+// const Customer=require('../models/tbl_customer');
 const randomstring=require('randomstring');
 const config=require("../config/config");
 // const nodemailer=require('nodemailer');
@@ -7,7 +7,9 @@ const jwt=require('jsonwebtoken');
 const Country=require('../models/country');
 const State=require('../models/state');
 const City=require('../models/city')
-
+const Group=require('../models/tbl_group');
+const ContactManagement=require('../models/tbl_contactManagement');
+const GroupContact=require('../models/tbl_groupContact');
 const getCountries=async(req,res)=>{
     try{
         const countries=await Country.find({})
@@ -59,7 +61,7 @@ const create_token=async(id)=>{
 const addCustomer=async(req,res)=>{
     try{
             
-            const customer=new Customer({
+            const customer=new ContactManagement({
                 first_name:req.body.first_name,
                 last_name:req.body. last_name,
                 designation:req.body.designation,
@@ -77,10 +79,24 @@ const addCustomer=async(req,res)=>{
                 zipcode:req.body.zipcode,
                 city:req.body.city, 
                 state:req.body.state,
-                country:req.body.country, 
+                country:req.body.country,
+                type:req.body.type 
                 
         })
-            const userData=await customer.save();
+            const userData=await customer.save().then(async (userData) => {
+                for(var i=0;i<userData.group.length;i++){
+                const all = new GroupContact({
+                    contact_id:userData._id,
+                    group_id:userData.group[i]
+                   
+                })
+                const historyData = await all.save()
+                // console.log(historyData)
+                const groupCountData=await Group.findById({_id:req.body.group[i]})
+               const count=groupCountData.count+1;
+               const userData1= await Group.findByIdAndUpdate({_id:req.body.group[i]},{$set:{count:count}});
+            }
+            });
 
             if(userData)
             {
@@ -103,7 +119,7 @@ const addCustomer=async(req,res)=>{
 const emailExist=async(req,res)=>{
 
     try{
-        Customer.find({email:req.query.email})
+        ContactManagement.find({email:req.query.email})
         .then(async resp=>{
          if(resp.length!=0){
            return res.status(200).send({success:false,msg:'Email alredy exist'})
@@ -125,7 +141,7 @@ const contactExist=async(req,res)=>{
 
     try{
        
-        Customer.find({primary_contact_number:req.query.primary_contact_number})
+        ContactManagement.find({primary_contact_number:req.query.primary_contact_number})
         .then(async resp=>{
          if(resp.length!=0){
            return res.status(200).send({success:false,msg:'contact alredy exist'})
@@ -146,7 +162,7 @@ const contactExist=async(req,res)=>{
 const allCustomer=async(req,res)=>{
     try{
 
-        const userData=await Customer.find();
+        const userData=await ContactManagement.find({type:'customer'});
     res.status(200).send({success:true,data:userData});
 
     }
@@ -171,7 +187,7 @@ const customerList=async(req,res)=>{
         const pageNumber = parseInt(req.query.pageNumber) || 0;
         const limit = parseInt(req.query.limit) || 4;
         const result = {};
-        const totalPosts = await Customer.countDocuments().exec();
+        const totalPosts = await ContactManagement.countDocuments({type:'customer'}).exec();
         let startIndex = pageNumber * limit;
         const endIndex = (pageNumber + 1) * limit;
         result.totalPosts = totalPosts;
@@ -181,13 +197,13 @@ const customerList=async(req,res)=>{
             limit: limit,
           };
         }
-        if (endIndex < (await Customer.countDocuments().exec())) {
+        if (endIndex < (await ContactManagement.countDocuments({type:'customer'}).exec())) {
           result.next = {
             pageNumber: pageNumber + 1,
             limit: limit,
           };
         }
-        result.data = await Customer.find()
+        result.data = await ContactManagement.find({type:'customer'})
         .populate('group service_offered')
         .find({
             $or:[
@@ -217,7 +233,8 @@ const deleteCustomer=async(req,res)=>{
     try{
 
         const id=req.query.id;
-        await Customer.deleteOne({_id:id});
+        await ContactManagement.deleteOne({_id:id});
+        const deleteCustomer= await GroupContact.deleteMany({contact_id:id});
     res.status(200).send({success:true,msg:"Customer can be deleted"})
 
     }
@@ -232,7 +249,7 @@ const editCustomer=async(req,res)=>{
     try{
 
        const id=req.query.id;
-       const userData=await Customer.findById({_id:id}).populate('group service_offered');
+       const userData=await ContactManagement.findById({_id:id}).populate('group service_offered');
 
        if(userData){
 
@@ -256,11 +273,27 @@ const editCustomer=async(req,res)=>{
 const updateCustomer=async(req,res)=>{
     try{
 
-       const userData= await Customer.findByIdAndUpdate({_id:req.params.id},{$set:{first_name:req.body.first_name, last_name:req.body.last_name,designation:req.body.designation,
+       const userData= await ContactManagement.findByIdAndUpdate({_id:req.params.id},{$set:{first_name:req.body.first_name, last_name:req.body.last_name,designation:req.body.designation,
         company_name:req.body.company_name,email:req.body.email,primary_contact_number:req.body.primary_contact_number,secondary_contact_number:req.body.secondary_contact_number,service_offered:req.body.service_offered,
         group:req.body.group,status:req.body.status,address1:req.body.address1,address2:req.body.address2,taluka:req.body.taluka,village:req.body.village,zipcode:req.body.zipcode,
-        city:req.body.city,state:req.body.state,country:req.body.country}});
-       res.status(200).send({sucess:true,msg:"sucessfully updated",group:userData})
+        city:req.body.city,state:req.body.state,country:req.body.country
+    }}).then(async (userData) => {
+        const id=userData._id;
+        const userData1= await GroupContact.deleteMany({contact_id:id});
+        return userData;
+        
+    }).then(async (userData) => {
+        for(var i=0;i<req.body.group.length;i++){
+        const all = new GroupContact({
+            contact_id:req.params.id,
+            group_id:req.body.group[i]
+           
+        })
+        const data = await all.save()
+    }
+    });
+   
+   res.status(200).send({sucess:true,msg:"sucessfully updated",group:userData});
 
     }
     catch(error){

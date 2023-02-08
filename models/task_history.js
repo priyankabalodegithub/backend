@@ -4,7 +4,7 @@ const taskHistorySchema=new mongoose.Schema({
 task_id:{
     type:mongoose.Schema.Types.ObjectId,
     ref:'Tbl_TaskManagement',
-    required:true
+   //  required:true
  },
  sales_phase:[{
     type:mongoose.Schema.Types.ObjectId,
@@ -34,6 +34,7 @@ task_id:{
  invoice_file:{
     type:String
   },
+  
   quotation_file:{
     type:String
   },
@@ -56,6 +57,21 @@ task_id:{
   reason_for_dealLost:{
    type:String 
 },
+is_completed:{
+   type:Number,
+   default:0
+ },
+ note:{
+   type:String
+ },
+ next_action:{
+   type:Number,
+   default:0
+ },
+ task_completed:{
+   type:Number,
+   default:0
+ }
  
 }
 );

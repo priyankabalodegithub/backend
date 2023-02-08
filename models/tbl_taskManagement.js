@@ -95,6 +95,17 @@ reason_for_dealLost:{
    type:String,
     
 },
+task_completed:{
+   type:Number,
+   default:0
+ }
+// is_completed:{
+//    type:Number,
+//    default:0
+//  },
+//  note:{
+//    type:String
+//  }
 }
 );
 module.exports=mongoose.model('Tbl_TaskManagement',taskManagementSchema)

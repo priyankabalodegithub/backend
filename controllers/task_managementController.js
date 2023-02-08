@@ -87,6 +87,28 @@ const salesList = async (req, res) => {
         res.status(400).send(err.message);
     }
 }
+// edit sales phase
+const editSales=async(req,res)=>{
+    try{
+
+       const id=req.query.id;
+       const userData=await Sales.findById({_id:id});
+
+       if(userData){
+
+        res.status(200).send({success:true,sales:userData})
+
+       }
+       else{
+       
+        res.status(200).send({success:false})
+       }
+
+    }
+    catch(error){
+        res.status(400).send(error.message);
+    }
+}
 
 // add action
 const addAction = async (req, res) => {
@@ -179,8 +201,11 @@ const addTask = async (req, res) => {
             client_contactNumber: req.body.client_contactNumber,
             client_email: req.body.client_email,
             level_of_urgency: req.body.level_of_urgency,
-
-
+            task_status:req.body.task_status,
+            task_completed:req.body.task_completed
+            // is_completed:req.body.is_completed,
+            // note:req.body.note,
+            // reason_for_dealLost:req.body.reason_for_dealLost
         })
         const userData = await task.save().then(async (userData) => {
             const history = new TaskHistory({
@@ -194,12 +219,54 @@ const addTask = async (req, res) => {
                 task_status: userData.task_status,
                 level_of_urgency: userData.level_of_urgency,
                 reason_for_dealLost: userData.reason_for_dealLost,
-                lead_status: selectedPhase.name !== 'Initial Contact' ? Number(req.body.level_of_urgency) : 1
+                lead_status:selectedPhase.name !=='Initial Contact' ? Number(req.body.level_of_urgency) : 1,
+                is_completed:req.body.is_completed,
+                note:req.body.note,
+                reason_for_dealLost:req.body.reason_for_dealLost,
+                task_completed:userData.task_completed
             })
             const historyData = await history.save()
-            // console.log(historyData)
+            return historyData
 
-        });
+        }).then(async (historyData) => {
+            if(req.body.add_task_for=='contact' && selectedPhase.name !=='Initial Contact')
+            {
+              const contactData = new Contact({
+               first_name:req.body.client_firstName,
+               last_name:req.body.client_lastName,
+               primary_contact_number:req.body.client_contactNumber,
+               email:req.body.client_email,
+
+            })
+          
+            const Data = await contactData.save()
+
+        }else if(req.body.add_task_for=='lead' && selectedPhase.name !=='Initial Contact')
+        {
+            const leadData = new Lead({
+               first_name:req.body.client_firstName,
+               last_name:req.body.client_lastName,
+               primary_contact_number:req.body.client_contactNumber,
+               email:req.body.client_email,
+
+            })
+           
+            const Data = await leadData.save()
+            
+        }
+        else if(req.body.add_task_for=='customer' && selectedPhase.name !=='Initial Contact')
+        {
+             const customerData = new Customer({
+               first_name:req.body.client_firstName,
+               last_name:req.body.client_lastName,
+               primary_contact_number:req.body.client_contactNumber,
+               email:req.body.client_email,
+
+            })
+            const Data = await customerData.save()
+        }
+           
+        })
 
         if (userData) {
 
@@ -216,6 +283,63 @@ const addTask = async (req, res) => {
 
 }
 
+// add next action
+
+const addnextAction=async(req,res)=>{
+    try{
+          
+        const history = new TaskHistory({
+
+                task_id: req.body._id,
+                sales_phase: req.body.sales_phase,
+                action: req.body.action,
+                action_date: req.body.action_date,
+                remarks: req.body.remarks,
+                assign_task_to: req.body.assign_task_to,
+                budget: req.body.budget,
+                task_status: req.body.task_completed === '1' ? 3 : 2,
+                level_of_urgency: req.body.level_of_urgency,
+                reason_for_dealLost: req.body.reason_for_dealLost,
+                lead_status:req.body.sales_phase[0].name !=='Initial Contact' ? Number(req.body.level_of_urgency) : 1,
+                is_completed:req.body.is_completed,
+                next_action:req.body.next_action,
+                note:req.body.note,
+                reason_for_dealLost:req.body.reason_for_dealLost,
+                task_completed:req.body.task_completed
+                
+        })
+        const historyData = await history.save().then(async (historyDetails) => {
+           const task= await Task.findByIdAndUpdate(
+                {
+                    _id: req.body._id
+                }, {
+                $set: {
+                    task_status: req.body.task_completed === '1' ? 3 : 2,
+                }
+            })
+            const taskData = await task.save();
+            return historyDetails;
+        })
+
+            if(historyData)
+            {
+               
+                
+                res.status(200).send({success:true,data:historyData,msg:"Data save successfully."})
+            }
+            else
+            {
+                res.status(200).send({msg:"data failed"})
+            }
+    
+    }
+    catch(error)
+    {
+        
+        res.status(400).send(error.message);
+    }
+
+}
 // task list
 
 const taskList = async (req, res) => {
@@ -277,13 +401,13 @@ const taskList = async (req, res) => {
         const list = await Promise.all(result.data.map(async (data) => {
             // console.log('data', data);
             let query;
-            if (data.add_task_for === 'customer') {
+            if (data && data.add_task_for && data.add_task_for === 'customer') {
                 query = Customer.find({ _id: data.selected_list }).populate('service_offered group')
             }
-            if (data.add_task_for === 'contact') {
+            if (data && data.add_task_for && data.add_task_for === 'contact') {
                 query = Contact.find({ _id: data.selected_list }).populate('group')
             }
-            if (data.add_task_for === 'lead') {
+            if (data && data.add_task_for && data.add_task_for === 'lead') {
                 query = Lead.find({ _id: data.selected_list }).populate('business_opportunity group')
             }
 
@@ -301,7 +425,7 @@ const taskList = async (req, res) => {
                     ..._result.assign_task_to,
                     fullName: _result.assign_task_to[0].first_name + ' ' + _result.assign_task_to[0].last_name
                 },
-                sales_phase: _result.sales_phase[0].name,
+                sales_phase:_result.sales_phase[0].name,
                 selected_list: selected_list && selected_list.length > 0 ? selected_list[0] : {}
             }
 
@@ -395,6 +519,9 @@ const updateTask = async (req, res) => {
                     client_contactNumber: req.body.client_contactNumber,
                     client_email: req.body.client_email,
                     level_of_urgency: req.body.level_of_urgency,
+                    // task_status:req.body.task_status,
+                    // is_completed:req.body.is_completed,
+                    // note:req.body.note,
                     // reason_for_dealLost:req.body.reason_for_dealLost
                 }
             })
@@ -407,8 +534,12 @@ const updateTask = async (req, res) => {
             return userData;
         }).then(async ([userData]) => {
             console.log(userData);
+            // Tweet.findOne({}, {}, { sort: { 'created_at' : -1 } }, function(err, post) {
+            //     console.log( post );
+            //   });
             await TaskHistory.findOneAndUpdate(
                 { "task_id": req.params.id },
+               
                {
                         sales_phase: userData.sales_phase,
                         action: userData.action, 
@@ -417,9 +548,14 @@ const updateTask = async (req, res) => {
                         assign_task_to: userData.assign_task_to, 
                         budget: userData.budget,
                         level_of_urgency: userData.level_of_urgency, 
-                        task_status:userData.task_status
-                        // reason_for_dealLost: userData.reason_for_dealLost ? userData.reason_for_dealLost : ''
-                    }
+                        // task_status:userData.task_status,
+                        is_completed:req.body.is_completed,
+                        note:req.body.note,
+                        reason_for_dealLost: req.body.reason_for_dealLost,
+                        next_action:req.body.next_action,
+                      
+                    },
+                    {sort: { 'status_date' : -1 }}
                 );
             const updateHistory = await TaskHistory.find(
                 { task_id: req.params.id }
@@ -433,7 +569,7 @@ const updateTask = async (req, res) => {
             res.send({
                 msg: " update data successfully",
                 data
-            });
+            })
         }).catch(err => {
             console.log(err);
             res.status(500).send({
@@ -442,18 +578,54 @@ const updateTask = async (req, res) => {
             });
         })
 
-         
-           const taskCountData=await Task.findById({_id:req.params.id})
-           if(taskCountData.task_status<3)
-           {
-            const task_status=taskCountData.task_status+1;
-            const userData1= await Task.findByIdAndUpdate({_id:req.params.id},{$set:{task_status:task_status}});
-           }
-            
-
-
     }
     catch (error) {
+        res.status(400).send(error.message);
+    }
+}
+
+// edit Indivisual
+
+const editIndivisual=async(req,res)=>{
+    try{
+
+       const id=req.query.id;
+       const userData=await TaskHistory.findById({_id:id}).populate('sales_phase action assign_task_to');
+
+       if(userData){
+
+         res.status(200).send({success:true,task:userData})
+       
+       }
+       else{
+       
+        res.status(200).send({success:false})
+       }
+
+    }
+    catch(error){
+        res.status(400).send(error.message);
+    }
+}
+
+// update individual
+const updateIndivisual=async(req,res)=>{
+    try{
+
+       const userData= await TaskHistory.findByIdAndUpdate({_id:req.params.id,},
+        {$set:
+            {
+                sales_phase:req.body.sales_phase,
+                 action:req.body.action,
+                 action_date:req.body.action_date,
+                 remarks:req.body.remarks,
+                 assign_task_to:req.body.assign_task_to,
+                 reason_for_dealLost:req.body.reason_for_dealLost,
+       }})
+       res.status(200).send({sucess:true,msg:"sucessfully updated",task:userData})
+
+    }
+    catch(error){
         res.status(400).send(error.message);
     }
 }
@@ -471,6 +643,55 @@ module.exports = {
     taskList,
     editTask,
     updateTask,
-    deleteTask
+    deleteTask,
+    editSales,
+    addnextAction,
+    editIndivisual,
+    updateIndivisual
 }
 
+// .then(async ([userData]) => {
+//     console.log(userData);
+//     await TaskHistory.findOneAndUpdate(
+//         { "task_id": req.params.id },
+//        {
+//                 sales_phase: userData.sales_phase,
+//                 action: userData.action, 
+//                 action_date: userData.action_date, 
+//                 remarks: userData.remarks,
+//                 assign_task_to: userData.assign_task_to, 
+//                 budget: userData.budget,
+//                 level_of_urgency: userData.level_of_urgency, 
+//                 task_status:userData.task_status
+//                 // reason_for_dealLost: userData.reason_for_dealLost ? userData.reason_for_dealLost : ''
+//             }
+//         );
+//     const updateHistory = await TaskHistory.find(
+//         { task_id: req.params.id }
+//     );
+//     console.log(updateHistory);
+//     return {
+//         userData,
+//         updateHistory
+//     }
+// }).then((data) => {
+//     res.send({
+//         msg: " update data successfully",
+//         data
+//     });
+// }).catch(err => {
+//     console.log(err);
+//     res.status(500).send({
+//         msg: 'data not updated',
+//         err: err
+//     });
+// })
+
+ 
+//    const taskCountData=await Task.findById({_id:req.params.id})
+//    if(taskCountData.task_status<3)
+//    {
+//     const task_status=taskCountData.task_status+1;
+//     const userData1= await Task.findByIdAndUpdate({_id:req.params.id},{$set:{task_status:task_status}});
+//    }
+    

@@ -7,7 +7,9 @@ const config=require("../config/config");
 const jwt=require('jsonwebtoken');
 const Country=require('../models/country');
 const State=require('../models/state');
-const City=require('../models/city')
+const City=require('../models/city');
+const GroupContact=require('../models/tbl_groupContact');
+const ContactManagement=require('../models/tbl_contactManagement');
 
 const getCountries=async(req,res)=>{
     try{
@@ -46,7 +48,7 @@ const getCities=async(req,res)=>{
 const addContact=async(req,res)=>{
     try{
 
-            const contact=new Contact({
+            const contact=new ContactManagement({
                 first_name:req.body.first_name,
                 last_name:req.body. last_name,
                 designation:req.body.designation,
@@ -64,17 +66,28 @@ const addContact=async(req,res)=>{
                 city:req.body.city, 
                 state:req.body.state,
                 country:req.body.country,  
+                type:req.body.type
                 
         })
 
-            const userData=await contact.save();
-            if(userData)
-
-            {
-                const groupCountData=await Group.findById({_id:req.body.group})
+            const userData=await contact.save().then(async (userData) => {
+                for(var i=0;i<userData.group.length;i++){
+                const all = new GroupContact({
+                    contact_id:userData._id,
+                    group_id:userData.group[i]
+                   
+                })
+                const historyData = await all.save()
+                // console.log(historyData)
+                const groupCountData=await Group.findById({_id:req.body.group[i]})
                const count=groupCountData.count+1;
-               const userData1= await Group.findByIdAndUpdate({_id:req.body.group},{$set:{count:count}});
-                res.status(200).send({success:true,data:userData,msg:"Data save successfully."})
+               const userData1= await Group.findByIdAndUpdate({_id:req.body.group[i]},{$set:{count:count}});
+            }
+            });
+            if(userData)
+            {
+                  res.status(200).send({success:true,data:userData,msg:"Data save successfully."})
+               
             }
             else
             {
@@ -95,7 +108,7 @@ const emailExist=async(req,res)=>{
 
     try{
        
-        Contact.find({email:req.query.email})
+        ContactManagement.find({email:req.query.email})
         .then(async resp=>{
          if(resp.length!=0){
            return res.status(200).send({success:false,msg:'Email alredy exist'})
@@ -118,7 +131,7 @@ const contactExist=async(req,res)=>{
 
     try{
        
-        Contact.find({primary_contact_number:req.query.primary_contact_number})
+        ContactManagement.find({primary_contact_number:req.query.primary_contact_number})
         .then(async resp=>{
          if(resp.length!=0){
            return res.status(200).send({success:false,msg:'contact alredy exist'})
@@ -140,7 +153,18 @@ const contactExist=async(req,res)=>{
 const allContact=async(req,res)=>{
     try{
 
-        const userData=await Contact.find();
+        const userData=await ContactManagement.find({type:'contact'});
+    res.status(200).send({success:true,data:userData});
+
+    }
+    catch(err){
+        res.status(400).send(err.message);
+    }
+}
+const common=async(req,res)=>{
+    try{
+
+        const userData=await ContactManagement.find().populate('group');
     res.status(200).send({success:true,data:userData});
 
     }
@@ -165,7 +189,7 @@ const contactList=async(req,res)=>{
         const pageNumber = parseInt(req.query.pageNumber) || 0;
         const limit = parseInt(req.query.limit) || 4;
         const result = {};
-        const totalPosts = await Contact.countDocuments().exec();
+        const totalPosts = await ContactManagement.countDocuments({type: 'contact'}).exec();
         let startIndex = pageNumber * limit;
         const endIndex = (pageNumber + 1) * limit;
         result.totalPosts = totalPosts;
@@ -175,13 +199,13 @@ const contactList=async(req,res)=>{
             limit: limit,
           };
         }
-        if (endIndex < (await Contact.countDocuments().exec())) {
+        if (endIndex < (await ContactManagement.countDocuments({type: 'contact'}).exec())) {
           result.next = {
             pageNumber: pageNumber + 1,
             limit: limit,
           };
         }
-        result.data = await Contact.find()
+        result.data = await ContactManagement.find({type: 'contact'})
         .populate('group')
         .find({
             $or:[
@@ -211,7 +235,8 @@ const deleteContact=async(req,res)=>{
 
     try{
         const id=req.query.id;
-       const userData= await Contact.deleteOne({_id:id});
+       const userData= await ContactManagement.deleteOne({_id:id});
+       const deleteContact= await GroupContact.deleteMany({contact_id:id});
     res.status(200).send({success:true,msg:"Contact can be deleted"})
     
     
@@ -228,7 +253,8 @@ const editContact=async(req,res)=>{
     try{
 
        const id=req.query.id;
-       const userData=await Contact.findById({_id:id}).populate('group');
+       
+       const userData=await ContactManagement.findById({_id:id}).populate('group');
 
        if(userData){
 
@@ -251,10 +277,43 @@ const editContact=async(req,res)=>{
 const updateContact=async(req,res)=>{
     try{
 
-       const userData= await Contact.findByIdAndUpdate({_id:req.params.id},{$set:{first_name:req.body.first_name, last_name:req.body.last_name,designation:req.body.designation,
-        company_name:req.body.company_name,primary_contact_number:req.body.primary_contact_number,secondary_contact_number:req.body.secondary_contact_number,email:req.body.email,
-        group:req.body.group,status:req.body.status,address1:req.body.address1,address2:req.body.address2,taluka:req.body.taluka,village:req.body.village,zipcode:req.body.zipcode,
-        city:req.body.city,state:req.body.state,country:req.body.country}});
+       const userData= await ContactManagement.findByIdAndUpdate({_id:req.params.id},
+        {$set:
+            {first_name:req.body.first_name, 
+                last_name:req.body.last_name,
+                designation:req.body.designation,
+                company_name:req.body.company_name,
+                primary_contact_number:req.body.primary_contact_number,
+                secondary_contact_number:req.body.secondary_contact_number,
+                email:req.body.email,
+                group:req.body.group,
+                business_opportunity:req.body.business_opportunity,
+                status:req.body.status,
+                address1:req.body.address1,
+               address2:req.body.address2,
+                taluka:req.body.taluka,
+                village:req.body.village,
+               zipcode:req.body.zipcode,
+               city:req.body.city,
+               state:req.body.state,
+               country:req.body.country
+    }}).then(async (userData) => {
+            const id=userData._id;
+            const userData1= await GroupContact.deleteMany({contact_id:id});
+            return userData;
+            
+        }).then(async (userData) => {
+            for(var i=0;i<req.body.group.length;i++){
+            const all = new GroupContact({
+                contact_id:req.params.id,
+                group_id:req.body.group[i]
+               
+            })
+            const data = await all.save()
+        }
+        });
+       
+       
        res.status(200).send({sucess:true,msg:"sucessfully updated",group:userData})
 
     }
@@ -275,5 +334,6 @@ module.exports={
     getCities,
     emailExist,
     contactExist,
-    allContact
+    allContact,
+    common
 }

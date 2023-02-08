@@ -43,6 +43,20 @@ const addTemplate=async(req,res)=>{
 
 }
 
+// all template list
+
+const alltemplate=async(req,res)=>{
+    try{
+
+        const userData=await Template.find();
+    res.status(200).send({success:true,data:userData});
+
+    }
+    catch(err){
+        res.status(400).send(err.message);
+    }
+}
+
 // template list
 const templateList=async(req,res)=>{
    
@@ -94,7 +108,7 @@ const templateList=async(req,res)=>{
         const {_doc: details} = lst;
         return {
             ...details,
-            imageUrl: path.join('http://', req.get('host'), 'image', details.image)
+            // imageUrl: path.join('http://', req.get('host'), 'image', details.image)
         };
       })
       return res.send({ msg: "Posts Fetched successfully", data: result});
@@ -188,6 +202,7 @@ module.exports={
     templateList,
     editTemplate,
     deleteTemplate,
-    updateTemplate
+    updateTemplate,
+    alltemplate
 }
 

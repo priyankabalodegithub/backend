@@ -56,6 +56,10 @@ app.use('/api',sourceRoute);
 const dealRoute=require('./routes/dealLostRoute');
 app.use('/api',dealRoute);
 
+// for message router
+const messageRoute=require('./routes/messageRoutes');
+app.use('/api',messageRoute);
+
 // for template router
 const templateRoute=require('./routes/templateRoute');
 app.use('/api',templateRoute);

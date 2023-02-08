@@ -11,11 +11,11 @@ const leadSchema=new mongoose.Schema({
    
     designation:{
        type:String,
-       required:true
+      //  required:true
     },
     company_name:{
        type:String,
-       required:true
+      //  required:true
     },
     email:{
        type:String,
@@ -31,12 +31,12 @@ const leadSchema=new mongoose.Schema({
     },
     business_opportunity:[{
       type:mongoose.Schema.Types.ObjectId,ref:'Tbl_Business_Opportunity',
-       required:true
+      //  required:true
    }],
     
     group:[{
       type:mongoose.Schema.Types.ObjectId,ref:'Tbl_Group',
-       required:true
+      //  required:true
    }],
      status:{
        type:Boolean,

@@ -40,6 +40,7 @@ task_route.post('/add-source', taskManagementController.contactSource);
 task_route.get('/source-list', taskManagementController.sourceList);
 task_route.post('/add-sales', taskManagementController.salesPhase);
 task_route.get('/sales-list', taskManagementController.salesList);
+task_route.get('/edit-sales',taskManagementController.editSales);
 task_route.post('/add-action',taskManagementController.addAction);
 task_route.get('/action-list', taskManagementController.actionList);
 task_route.post('/add-task', taskManagementController.addTask);
@@ -47,6 +48,11 @@ task_route.get('/task-list', taskManagementController.taskList);
 task_route.get('/edit-task',taskManagementController.editTask);
 task_route.put('/edit-task/:id',taskManagementController.updateTask);
 task_route.get('/delete-task',taskManagementController.deleteTask);
+task_route.post('/next-action',taskManagementController.addnextAction);
+task_route.get('/edit-taskIndivisual',taskManagementController.editIndivisual);
+task_route.put('/edit-taskIndivisual/:id',taskManagementController.updateIndivisual);
+
+
 
 task_route.get('/exist-taskaction',taskManagementController.actionExist);
 // task_route.get('/exist-Staffcontact',taskManagementController.contactExist);
