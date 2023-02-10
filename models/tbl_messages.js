@@ -30,6 +30,19 @@ const messageSchema=new mongoose.Schema({
    when_to_send:{
     type:String,
    
+ },
+ contact_count:{
+   type:Number,
+   default:0
+
+ },
+ members:[{
+   type:mongoose.Schema.Types.ObjectId,ref:'Tbl_ContactManagement',
+
+ }],
+ date_time:{
+   type:Date,
+   default:new Date()
  }
      
    });

@@ -40,7 +40,7 @@ task_id:{
   },
   status_date:{ 
    type:Date,
-   default:Date.now()
+   default:new Date().toISOString()
  },
  task_status:{
     type:Number,

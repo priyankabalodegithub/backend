@@ -93,6 +93,5 @@ type:{
 {timestamps:true}
 );
 
-// contactSchema.plugin(uniqueValidator,{message:'{PATH} is already exists'});
 
 module.exports=mongoose.model('Tbl_ContactManagement',contactManagementSchema)

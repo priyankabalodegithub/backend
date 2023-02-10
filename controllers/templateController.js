@@ -3,7 +3,7 @@ const Language=require('../models/tbl_language');
 const {validationResult}=require('express-validator');
 const path=require("path");
 
-// add Template
+// add Template for whatspp
 
 const addTemplate=async(req,res)=>{
     try{
@@ -42,6 +42,43 @@ const addTemplate=async(req,res)=>{
     }
 
 }
+// add Template for sms
+
+const addTemplatesms=async(req,res)=>{
+    try{
+       
+            const template=new Template({
+                template_created_for:req.body.template_created_for,
+                template_name:req.body.template_name,
+                language:req.body.language,
+                template_message:req.body.template_message,
+                image: '',
+                document:'', 
+                doc_type:req.body.doc_type,
+                is_send:req.body.is_send
+        })
+            const userData=await template.save();
+
+            if(userData)
+            {
+               
+                
+                res.status(200).send({success:true,data:userData,msg:"your template has been successfully."})
+            }
+            else
+            {
+                res.status(200).send({success:false,msg:"your template has been failed"})
+            }
+    
+    }
+    catch(error)
+    {
+        
+        res.status(400).send(error.message);
+    }
+
+}
+
 
 // all template list
 
@@ -158,7 +195,7 @@ const editTemplate=async(req,res)=>{
         res.status(400).send(error.message);
     }
 }
-// update list
+// update whatspp list
 
 const updateTemplate=async(req,res)=>{
     try{
@@ -178,6 +215,32 @@ const updateTemplate=async(req,res)=>{
 
     }
     catch(error){
+        
+        res.status(400).send(error.message);
+    }
+}
+
+// update sms list
+
+const updateTemplateSms=async(req,res)=>{
+    try{
+
+       const userData= await Template.findByIdAndUpdate({_id:req.params.id},
+        {$set:{
+            template_created_for:req.body.template_created_for, 
+            template_name:req.body.template_name,
+            language:req.body.language,
+            template_message:req.body.template_message,
+            image:'',
+            document:'',
+            doc_type:'',
+            is_send:req.body.is_send
+        }})
+       res.status(200).send({sucess:true,msg:"sucessfully updated",updateData:userData})
+
+    }
+    catch(error){
+        
         res.status(400).send(error.message);
     }
 }
@@ -203,6 +266,8 @@ module.exports={
     editTemplate,
     deleteTemplate,
     updateTemplate,
-    alltemplate
+    alltemplate,
+    addTemplatesms,
+    updateTemplateSms
 }
 

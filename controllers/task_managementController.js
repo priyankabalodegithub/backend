@@ -458,6 +458,10 @@ const deleteTask = async (req, res) => {
 
 const editTask = async (req, res) => {
     try {
+        var sortObject = {};
+        var stype = req.query.sorttype ? req.query.sorttype : 'status_date';
+        var sdir = req.query.sortdirection ? req.query.sortdirection : -1;
+        sortObject[stype] = sdir;
 
         const id = req.query.id;
         const userData = await Task.findById({ _id: id }).populate('contact_source action business_opportunity sales_phase')
@@ -470,7 +474,9 @@ const editTask = async (req, res) => {
 
         const taskHistory = await TaskHistory.find({
             task_id: id,
+            
         }).populate('sales_phase action assign_task_to')
+        .sort(sortObject)
             .exec();
         let { _doc: userDetails } = userData;
         // console.log(userDetails)
@@ -555,7 +561,7 @@ const updateTask = async (req, res) => {
                         next_action:req.body.next_action,
                       
                     },
-                    {sort: { 'status_date' : -1 }}
+                    {sort: { 'action_date' : -1 }}
                 );
             const updateHistory = await TaskHistory.find(
                 { task_id: req.params.id }
@@ -584,29 +590,115 @@ const updateTask = async (req, res) => {
     }
 }
 
-// edit Indivisual
+// add note
+const updateNote = async (req, res) => {
+    try {
+        let _promise = Promise.resolve();
+        _promise.then(async () => {
+            await Task.findByIdAndUpdate(
+                {
+                    _id: req.params.id
+                }, {
+                $set: {
+                    subject: req.body.subject,
+                    add_task_for: req.body.add_task_for,
+                    set_task_priority: req.body.set_task_priority,
+                    reason_to_change_task_priority: req.body.reason_to_change_task_priority,
+                    reason_to_change_estimated_date: req.body.reason_to_change_estimated_date,
+                    contact_source: req.body.contact_source,
+                    selected_list: req.body.selected_list,
+                    business_opportunity: req.body.business_opportunity,
+                    sales_phase: req.body.sales_phase,
+                    action: req.body.action,
+                    remarks: req.body.remarks,
+                    assign_task_to: req.body.assign_task_to,
+                    budget: req.body.budget,
+                    client_firstName: req.body.client_firstName,
+                    client_lastName: req.body.client_lastName,
+                    client_contactNumber: req.body.client_contactNumber,
+                    client_email: req.body.client_email,
+                    level_of_urgency: req.body.level_of_urgency,
+                    
+                }
+            })
 
-const editIndivisual=async(req,res)=>{
-    try{
+            const userData = await Task.find(
+                {
+                    _id: req.params.id
+                }
+            )
+            return userData;
+        }).then(async ([userData]) => {
 
-       const id=req.query.id;
-       const userData=await TaskHistory.findById({_id:id}).populate('sales_phase action assign_task_to');
-
-       if(userData){
-
-         res.status(200).send({success:true,task:userData})
-       
-       }
-       else{
-       
-        res.status(200).send({success:false})
-       }
+            await TaskHistory.findOneAndUpdate(
+                { "task_id": req.params.id },
+               
+               {
+                        sales_phase: userData.sales_phase,
+                        action: userData.action,  
+                        remarks: userData.remarks,
+                        assign_task_to: userData.assign_task_to, 
+                        budget: userData.budget,
+                        level_of_urgency: userData.level_of_urgency, 
+                        // task_status:userData.task_status,
+                        is_completed:req.body.is_completed,
+                        note:req.body.note,
+                        reason_for_dealLost: req.body.reason_for_dealLost,
+                        next_action:req.body.next_action,
+                      
+                    },
+                    {sort: { 'action_date' : -1 }}
+                );
+            const updateHistory = await TaskHistory.find(
+                { task_id: req.params.id }
+            );
+            console.log(updateHistory);
+            return {
+                userData,
+                updateHistory
+            }
+        }).then((data) => {
+            res.send({
+                msg: " update data successfully",
+                data
+            })
+        }).catch(err => {
+            console.log(err);
+            res.status(500).send({
+                msg: 'data not updated',
+                err: err
+            });
+        })
 
     }
-    catch(error){
+    catch (error) {
         res.status(400).send(error.message);
     }
 }
+
+// // edit Indivisual
+
+// const editIndivisual=async(req,res)=>{
+//     try{
+
+//        const id=req.query.id;
+//        const userData=await TaskHistory.findById({_id:id}).populate('sales_phase action assign_task_to');
+
+//        if(userData){
+
+//          res.status(200).send({success:true,task:userData})
+       
+//        }
+//        else{
+       
+//         res.status(200).send({success:false})
+//        }
+
+//     }
+//     catch(error){
+//         res.status(400).send(error.message);
+//     }
+// }
 
 // update individual
 const updateIndivisual=async(req,res)=>{
@@ -646,8 +738,9 @@ module.exports = {
     deleteTask,
     editSales,
     addnextAction,
-    editIndivisual,
-    updateIndivisual
+    // editIndivisual,
+    updateIndivisual,
+    updateNote
 }
 
 // .then(async ([userData]) => {

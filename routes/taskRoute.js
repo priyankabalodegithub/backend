@@ -49,17 +49,16 @@ task_route.get('/edit-task',taskManagementController.editTask);
 task_route.put('/edit-task/:id',taskManagementController.updateTask);
 task_route.get('/delete-task',taskManagementController.deleteTask);
 task_route.post('/next-action',taskManagementController.addnextAction);
-task_route.get('/edit-taskIndivisual',taskManagementController.editIndivisual);
+// task_route.get('/edit-taskIndivisual',taskManagementController.editIndivisual);
 task_route.put('/edit-taskIndivisual/:id',taskManagementController.updateIndivisual);
+task_route.put('/edit-note/:id',taskManagementController.updateNote);
 
 
 
 task_route.get('/exist-taskaction',taskManagementController.actionExist);
 // task_route.get('/exist-Staffcontact',taskManagementController.contactExist);
 
-// task_route.get('/test',jwtHelper,function(req,res){
-//     res.status(200).send({success:true,msg:"authentication"})
-// })
+
 
 
 module.exports=task_route;
