@@ -14,6 +14,11 @@ const groupSchema=new mongoose.Schema({
    default:true
    
 },
+members:[{
+   type:mongoose.Schema.Types.ObjectId,ref:'Tbl_ContactManagement',
+   
+
+ }],
 
 is_group:{
    type:Number,

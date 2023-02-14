@@ -80,12 +80,26 @@ const addTemplatesms=async(req,res)=>{
 }
 
 
-// all template list
+// all whatsapp template list
 
 const alltemplate=async(req,res)=>{
     try{
 
         const userData=await Template.find();
+    res.status(200).send({success:true,data:userData});
+
+    }
+    catch(err){
+        res.status(400).send(err.message);
+    }
+}
+
+// all sms template list
+
+const allsmstemplate=async(req,res)=>{
+    try{
+
+        const userData=await Template.find({template_created_for:'sms'});
     res.status(200).send({success:true,data:userData});
 
     }
@@ -259,6 +273,8 @@ const languageList=async(req,res)=>{
 }
 
 
+
+
 module.exports={
     addTemplate,
     languageList,
@@ -268,6 +284,7 @@ module.exports={
     updateTemplate,
     alltemplate,
     addTemplatesms,
-    updateTemplateSms
+    updateTemplateSms,
+    allsmstemplate
 }
 

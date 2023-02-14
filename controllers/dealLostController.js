@@ -45,9 +45,25 @@ const reasonList=async(req,res)=>{
     }
 }
 
+// delete reason
+const deleteReason=async(req,res)=>{
+    try{
+
+        const id=req.query.id;
+        await DealLost.deleteOne({_id:id});
+    res.status(200).send({success:true,msg:"reason can be deleted"})
+
+    }
+    catch(err)
+    {
+       res.status(400).send(err.message)
+    }
+}
+
 
 module.exports={
     addDealLostReason,
-    reasonList
+    reasonList,
+    deleteReason
 }
 

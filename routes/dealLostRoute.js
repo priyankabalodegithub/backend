@@ -12,6 +12,7 @@ const dealController=require('../controllers/dealLostController');
 // dealLost route
 dealLost_route.post('/add_dealLostreason',dealController.addDealLostReason);
 dealLost_route.get('/dealLostreason-list',dealController.reasonList);
+dealLost_route.get('/delete-reason',dealController.deleteReason);
 
 
 module.exports=dealLost_route;

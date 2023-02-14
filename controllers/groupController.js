@@ -1,8 +1,9 @@
 
 const Group=require('../models/tbl_group');
-const randomstring=require('randomstring');
+const Members=require('../models/tbl_allGroupMember');
+
 const config=require("../config/config");
-// const nodemailer=require('nodemailer');
+
 const jwt=require('jsonwebtoken');
 const Country=require('../models/country');
 const State=require('../models/state');
@@ -50,11 +51,21 @@ const addGroup=async(req,res)=>{
                 group_name:req.body.group_name,
                 group_description:req.body. group_description,
                 status:req.body.status,
-                // colors:req.body,
-                country:req.body      
+                members:req.body.members   
                 
         })
-            const userData=await group.save();
+            const userData=await group.save().then(async (userData) => {
+              
+                for(var i=0; i< req.body.members.length;i++){
+                        const data = new Members({
+                            group_id:userData._id,
+                            contact_id:req.body.members[i]
+                           
+                        })
+                        const sendMembers = await data.save()
+            }
+
+            });
 
             if(userData)
             {
@@ -194,7 +205,10 @@ const editProfileLoad=async(req,res)=>{
 const updateProfile=async(req,res)=>{
     try{
 
-       const userData= await Group.findByIdAndUpdate({_id:req.params.id},{$set:{group_name:req.body.group_name, group_description:req.body.group_description,status:req.body.status}});
+       const userData= await Group.findByIdAndUpdate({_id:req.params.id},{$set:{group_name:req.body.group_name, group_description:req.body.group_description,
+        status:req.body.status,
+        members:req.body.members  
+    }});
        res.status(200).send({sucess:true,msg:"sucessfully updated",group:userData})
 
     }

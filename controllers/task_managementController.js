@@ -170,6 +170,20 @@ const actionList = async (req, res) => {
         res.status(400).send(err.message);
     }
 }
+// delete Business
+const deleteAction=async(req,res)=>{
+    try{
+
+        const id=req.query.id;
+        await Action.deleteOne({_id:id});
+    res.status(200).send({success:true,msg:"action can be deleted"})
+
+    }
+    catch(err)
+    {
+       res.status(400).send(err.message)
+    }
+}
 
 
 // Add task
@@ -740,7 +754,8 @@ module.exports = {
     addnextAction,
     // editIndivisual,
     updateIndivisual,
-    updateNote
+    updateNote,
+    deleteAction
 }
 
 // .then(async ([userData]) => {

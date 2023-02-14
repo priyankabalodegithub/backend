@@ -42,6 +42,7 @@ task_route.post('/add-sales', taskManagementController.salesPhase);
 task_route.get('/sales-list', taskManagementController.salesList);
 task_route.get('/edit-sales',taskManagementController.editSales);
 task_route.post('/add-action',taskManagementController.addAction);
+task_route.get('/delete-action',taskManagementController.deleteAction);
 task_route.get('/action-list', taskManagementController.actionList);
 task_route.post('/add-task', taskManagementController.addTask);
 task_route.get('/task-list', taskManagementController.taskList);

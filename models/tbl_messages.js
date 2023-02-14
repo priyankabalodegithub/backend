@@ -28,7 +28,7 @@ const messageSchema=new mongoose.Schema({
       default:0
    },
    when_to_send:{
-    type:String,
+    type:Date,
    
  },
  contact_count:{

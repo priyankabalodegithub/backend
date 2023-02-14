@@ -229,13 +229,62 @@ const messageSendLater=async(req,res)=>{
     return res.status(500).json({ msg: "Sorry, something went wrong" });
     }
 }
+// message edit & update
 
+const editMessage=async(req,res)=>{
+    try{
+
+       const id=req.query.id;
+       
+       const userData=await Message.findById({_id:id}).populate('group_id template_id members');
+
+       if(userData){
+
+         res.status(200).send({success:true,messages:userData})
+       
+       }
+       else{
+       
+        res.status(200).send({success:false})
+       }
+
+    }
+    catch(error){
+        res.status(400).send(error.message);
+    }
+}
+
+// update message
+
+const updateMessage=async(req,res)=>{
+    try{
+
+       const userData= await Message.findByIdAndUpdate({_id:req.params.id},
+        {$set:
+            {
+                message:req.body.message,
+                language:req.body. language,
+                template_name:req.body.template_name,
+                template_id:req.body.template_id,
+                members:req.body.members,
+                is_send:req.body.is_send,
+                when_to_send:req.body.when_to_send,
+                contact_count:req.body.members.length
+            }});
+       res.status(200).send({sucess:true,msg:"sucessfully updated",message:userData})
+
+    }
+    catch(error){
+        res.status(400).send(error.message);
+    }
+}
 
 module.exports={
 
     addMessage,
     sendMembers,
     messageSend,
-    messageSendLater
-
+    messageSendLater,
+    editMessage,
+    updateMessage
 }

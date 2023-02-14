@@ -50,18 +50,19 @@ const upload = multer({
     fileFilter:fileFilter
 }).fields([{ name: 'document', maxCount: 1 }, { name: 'image', maxCount: 1 }]);
 
-const tempalteController=require('../controllers/templateController');
+const templateController=require('../controllers/templateController');
 const {docValidation}=require('../helpers/validation')
-template_route.post('/add-template',upload,docValidation,tempalteController.addTemplate);
-template_route.post('/add-templateSms',tempalteController.addTemplatesms);
-template_route.get('/template-list',tempalteController.templateList);
-template_route.get('/alltemplate-list',tempalteController.alltemplate);
-template_route.get('/edit-template',tempalteController.editTemplate);
-template_route.get('/delete-template',tempalteController.deleteTemplate);
-template_route.put('/edit-template/:id',upload,docValidation,tempalteController.updateTemplate);
-template_route.put('/edit-templateSms/:id',tempalteController.updateTemplateSms);
+template_route.post('/add-template',upload,docValidation,templateController.addTemplate);
+template_route.post('/add-templateSms',templateController.addTemplatesms);
+template_route.get('/template-list',templateController.templateList);
+template_route.get('/alltemplate-list',templateController.alltemplate);
+template_route.get('/allsmstemplate-list',templateController.allsmstemplate);
+template_route.get('/edit-template',templateController.editTemplate);
+template_route.get('/delete-template',templateController.deleteTemplate);
+template_route.put('/edit-template/:id',upload,docValidation,templateController.updateTemplate);
+template_route.put('/edit-templateSms/:id',templateController.updateTemplateSms);
 
-template_route.get('/language-list',tempalteController.languageList);
+template_route.get('/language-list',templateController.languageList);
 
 
 module.exports=template_route;
