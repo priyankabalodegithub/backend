@@ -110,6 +110,21 @@ const editSales=async(req,res)=>{
     }
 }
 
+// update action
+const updateSales=async(req,res)=>{
+    try{
+
+       const userData= await Sales.findByIdAndUpdate({_id:req.params.id},{$set:
+        { name: req.body.name
+        }});
+       res.status(200).send({sucess:true,msg:"sucessfully updated",sales:userData})
+
+    }
+    catch(error){
+        res.status(400).send(error.message);
+    }
+}
+
 // add action
 const addAction = async (req, res) => {
     try {
@@ -182,6 +197,21 @@ const deleteAction=async(req,res)=>{
     catch(err)
     {
        res.status(400).send(err.message)
+    }
+}
+
+// update action
+const updateAction=async(req,res)=>{
+    try{
+
+       const userData= await Action.findByIdAndUpdate({_id:req.params.id},{$set:
+        { action: req.body.action
+        }});
+       res.status(200).send({sucess:true,msg:"sucessfully updated",action:userData})
+
+    }
+    catch(error){
+        res.status(400).send(error.message);
     }
 }
 
@@ -755,7 +785,10 @@ module.exports = {
     // editIndivisual,
     updateIndivisual,
     updateNote,
-    deleteAction
+    deleteAction,
+    updateAction,
+    updateSales
+
 }
 
 // .then(async ([userData]) => {

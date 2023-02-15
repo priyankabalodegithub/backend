@@ -13,6 +13,7 @@ const dealController=require('../controllers/dealLostController');
 dealLost_route.post('/add_dealLostreason',dealController.addDealLostReason);
 dealLost_route.get('/dealLostreason-list',dealController.reasonList);
 dealLost_route.get('/delete-reason',dealController.deleteReason);
+dealLost_route.put('/edit-deal/:id',dealController.updateDeal);
 
 
 module.exports=dealLost_route;

@@ -59,11 +59,27 @@ const deleteReason=async(req,res)=>{
        res.status(400).send(err.message)
     }
 }
+// update deal
+const updateDeal=async(req,res)=>{
+    try{
+
+       const userData= await DealLost.findByIdAndUpdate({_id:req.params.id},{$set:
+        { 
+            dealLostReason: req.body.dealLostReason
+        }});
+       res.status(200).send({sucess:true,msg:"sucessfully updated",deal:userData})
+
+    }
+    catch(error){
+        res.status(400).send(error.message);
+    }
+}
 
 
 module.exports={
     addDealLostReason,
     reasonList,
-    deleteReason
+    deleteReason,
+    updateDeal
 }
 

@@ -56,12 +56,12 @@ const addGroup=async(req,res)=>{
         })
             const userData=await group.save().then(async (userData) => {
               
-                for(var i=0; i< req.body.members.length;i++){
-                        const data = new Members({
-                            group_id:userData._id,
-                            contact_id:req.body.members[i]
-                           
-                        })
+                for(var i=0;i<userData.members.length;i++){
+                    const all = new GroupContact({
+                        contact_id:userData.members[i],
+                        group_id:userData._id
+                       
+                    })
                         const sendMembers = await data.save()
             }
 

@@ -113,7 +113,7 @@ const editBusinessLoad=async(req,res)=>{
        if(userData){
 
         
-        res.status(200).send({success:true,group:userData})
+        res.status(200).send({success:true,business:userData})
 
        }
        else{
@@ -132,8 +132,10 @@ const editBusinessLoad=async(req,res)=>{
 const updateBusiness=async(req,res)=>{
     try{
 
-       const userData= await Business.findByIdAndUpdate({_id:req.params.id},{$set:{title:req.body.title,is_active:req.body.is_active}});
-       res.status(200).send({sucess:true,msg:"sucessfully updated",group:userData})
+       const userData= await Business.findByIdAndUpdate({_id:req.params.id},{$set:
+        {title:req.body.title,
+            is_active:req.body.is_active}});
+       res.status(200).send({sucess:true,msg:"sucessfully updated",business:userData})
 
     }
     catch(error){
