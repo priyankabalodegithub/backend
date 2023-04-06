@@ -19,7 +19,8 @@ const addTemplate=async(req,res)=>{
                 image: req.files.image[0].filename,
                 document:req.files.document[0].filename, 
                 doc_type:req.body.doc_type,
-                is_send:req.body.is_send
+                is_send:req.body.is_send,
+                is_archive:req.body.is_archive
         })
             const userData=await template.save();
 
@@ -113,8 +114,8 @@ const templateList=async(req,res)=>{
    
     try{
         var sortObject = {};
-        var stype = req.query.sorttype ? req.query.sorttype : '_id';
-        var sdir = req.query.sortdirection ? req.query.sortdirection : 1;
+        var stype = req.query.sorttype ? req.query.sorttype : 'createdAt';
+        var sdir = req.query.sortdirection ? req.query.sortdirection : -1;
         sortObject[stype] = sdir;
 
         
@@ -145,6 +146,7 @@ const templateList=async(req,res)=>{
         result.data = await Template.find()
         .find({
             $or:[
+                {is_archive: req.query.is_archive},
                 {template_name :{$regex:'.*'+search+'.*',$options:'i'}},
                 {language:{$regex:'.*'+search+'.*',$options:'i'}},
                 {template_created_for:{$regex:'.*'+search+'.*',$options:'i'}},

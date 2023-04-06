@@ -9,7 +9,9 @@ const State=require('../models/state');
 const City=require('../models/city')
 const Group=require('../models/tbl_group');
 const ContactManagement=require('../models/tbl_contactManagement');
+const csv=require('csvtojson')
 const GroupContact=require('../models/tbl_groupContact');
+
 const getCountries=async(req,res)=>{
     try{
         const countries=await Country.find({})
@@ -176,8 +178,8 @@ const customerList=async(req,res)=>{
     
     try{
         var sortObject = {};
-        var stype = req.query.sorttype ? req.query.sorttype : '_id';
-        var sdir = req.query.sortdirection ? req.query.sortdirection : 1;
+        var stype = req.query.sorttype ? req.query.sorttype : 'createdAt';
+        var sdir = req.query.sortdirection ? req.query.sortdirection : -1;
         sortObject[stype] = sdir;
 
         var search='';
@@ -301,6 +303,52 @@ const updateCustomer=async(req,res)=>{
     }
 }
 
+
+// import customer
+const importCustomer=async(req,res)=>{
+    try{
+    
+        var userData=[];
+    
+       csv()
+       .fromFile(req.file.path)
+       .then(async(response)=>{
+       
+         for(var x=0;x<response.length;x++){
+            userData.push({
+                first_name:response[x].first_name,
+                last_name:response[x].last_name,
+                designation:response[x].designation,
+                company_name:response[x].company_name,
+                primary_contact_number:response[x].primary_contact_number,
+                email:response[x].email,
+                secondary_contact_number:response[x].secondary_contact_number,
+                group:response[x].group,
+                service_offered:response[x].service_offered,
+                status:response[x].status,
+                address1:response[x].address1,
+                address2:response[x].address2,
+                taluka:response[x].taluka,
+                village:response[x].village,
+                zipcode:response[x].zipcode,
+                city:response[x].city,
+                state:response[x].state,
+                country:response[x].country,
+                type:'customer'
+            })
+    
+         }
+         await ContactManagement.insertMany(userData)
+    
+       })
+        res.send({success:true,msg:"CSV imported"})
+    
+    
+    }catch(error){
+        res.send({success:false,msg:error.message})
+    }
+    }
+
 module.exports={
     addCustomer,
     customerList,
@@ -312,6 +360,7 @@ module.exports={
     getCities,
     emailExist,
     contactExist,
-    allCustomer
+    allCustomer,
+    importCustomer
 }
 

@@ -29,8 +29,13 @@ doc_type:{
 },
 is_send:{
    type:Number
+},
+is_archive:{
+   type:Number,
+   default:0
 }
   
-});
+},
+{timestamps:true});
 module.exports=mongoose.model('Tbl_Template',templateSchema)
 

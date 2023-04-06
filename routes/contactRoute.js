@@ -14,20 +14,15 @@ contact_route.use(bodyParser.urlencoded({extended:true}));
 const multer=require('multer');
 const path=require("path");
 
-contact_route.use(express.static('public'));
+contact_route.use(express.static(path.resolve(__dirname,'public')));
 
 const storage=multer.diskStorage({
     destination:function(req,file,cb){
-        cb(null,path.join(__dirname,'../public/userImages'),function(error,success){
-            if(error) throw error
-        });
+        cb(null,'./public/uploads')
     },
 
     filename:function(req,file,cb){
-        const name=Date.now()+'-'+file.originalname;
-        cb(null,name,function(error1,success1){
-            if(error1) throw error1
-        })
+        cb(null,file.originalname)
     }
 });
 
@@ -39,6 +34,7 @@ const contactController=require('../controllers/contactController');
 const jwtHelper=require('../config/jwtHelper')
 
 // contact route
+contact_route.post('/importUser',upload.single('file'),contactController.importUser);
 contact_route.post('/add_contact',contactController.addContact);
 contact_route.get('/all-contact',contactController.allContact);
 contact_route.get('/contact-list',contactController.contactList);

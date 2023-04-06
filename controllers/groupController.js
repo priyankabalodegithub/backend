@@ -51,21 +51,22 @@ const addGroup=async(req,res)=>{
                 group_name:req.body.group_name,
                 group_description:req.body. group_description,
                 status:req.body.status,
-                members:req.body.members   
+                // members:req.body.members   
                 
         })
-            const userData=await group.save().then(async (userData) => {
+            const userData=await group.save()
+            // .then(async (userData) => {
               
-                for(var i=0;i<userData.members.length;i++){
-                    const all = new GroupContact({
-                        contact_id:userData.members[i],
-                        group_id:userData._id
+            //     for(var i=0;i<userData.members.length;i++){
+            //         const all = new GroupContact({
+            //             contact_id:userData.members[i],
+            //             group_id:userData._id
                        
-                    })
-                        const sendMembers = await data.save()
-            }
+            //         })
+            //             const sendMembers = await data.save()
+            // }
 
-            });
+            // });
 
             if(userData)
             {
@@ -83,6 +84,7 @@ const addGroup=async(req,res)=>{
     {
         
         res.status(400).send(error.message);
+        
     }
 
 }
@@ -107,8 +109,8 @@ const groupList=async(req,res)=>{
     
     try{
         var sortObject = {};
-        var stype = req.query.sorttype ? req.query.sorttype : '_id';
-        var sdir = req.query.sortdirection ? req.query.sortdirection : 1;
+        var stype = req.query.sorttype ? req.query.sorttype : 'createdAt';
+        var sdir = req.query.sortdirection ? req.query.sortdirection : -1;
         sortObject[stype] = sdir;
 
         var search='';

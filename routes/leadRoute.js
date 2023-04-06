@@ -14,20 +14,15 @@ lead_route.use(bodyParser.urlencoded({extended:true}));
 const multer=require('multer');
 const path=require("path");
 
-lead_route.use(express.static('public'));
+lead_route.use(express.static(path.resolve(__dirname,'public')));
 
 const storage=multer.diskStorage({
     destination:function(req,file,cb){
-        cb(null,path.join(__dirname,'../public/userImages'),function(error,success){
-            if(error) throw error
-        });
+        cb(null,'./public/uploads')
     },
 
     filename:function(req,file,cb){
-        const name=Date.now()+'-'+file.originalname;
-        cb(null,name,function(error1,success1){
-            if(error1) throw error1
-        })
+        cb(null,file.originalname)
     }
 });
 
@@ -46,6 +41,7 @@ lead_route.get('/get-cities',leadController.getCities)
 
 
 // lead route
+lead_route.post('/import-lead',upload.single('file'),leadController.importLead);
 lead_route.post('/add_lead',leadController.addLead);
 lead_route.get('/allLead-list',leadController.allLead);
 lead_route.get('/lead-list',leadController.leadList);

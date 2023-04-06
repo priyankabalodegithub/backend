@@ -1,5 +1,9 @@
 const mongoose=require('mongoose')
 const uniqueValidator=require('mongoose-unique-validator')
+const validateEmail=function(email){
+   const regex=/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+   return regex.test(email)
+}
 
 const contactManagementSchema=new mongoose.Schema({
   
@@ -22,7 +26,8 @@ const contactManagementSchema=new mongoose.Schema({
  },
  primary_contact_number:{
     type:String,
-    required:true
+    required:true,
+    unique:true
  },
  secondary_contact_number:{
     type:String,
@@ -31,6 +36,9 @@ const contactManagementSchema=new mongoose.Schema({
  email:{
     type:String,
     required:true,
+    validate:[validateEmail],
+    unique:true,
+  
 
  },
  business_opportunity:[{
@@ -50,6 +58,16 @@ const contactManagementSchema=new mongoose.Schema({
     type:Boolean,
     default:true
  },
+ contact_source:[{
+   type:mongoose.Schema.Types.ObjectId,
+   ref:'Tbl_ContactSource',
+   required:true       
+}],
+buisness_sector:[{
+   type:mongoose.Schema.Types.ObjectId,
+   ref:'Tbl_BusinessSector',
+   required:true       
+}],
  address1:{
     type:String,
    //  required:true

@@ -5,17 +5,86 @@ const Permission=require('../models/staff_permission')
 const bcrypt=require('bcrypt');
 const randomstring=require('randomstring');
 const config=require("../config/config");
-// const nodemailer=require('nodemailer');
+const nodemailer=require('nodemailer');
 const jwt=require('jsonwebtoken');
 const tbl_module = require('../models/tbl_module');
+const csv=require('csvtojson')
 
+const create_token=async(id)=>{
+  try{
+    
+       const token=await jwt.sign({_id:id},config.sessionSecret);
+       return token;
+
+
+  }
+  catch(error)
+  {
+      res.status(400).send(error.message);
+  }
+}
+
+// secure password
+const securePassword=async(password)=>{
+  try{
+
+     const passwordHash=await bcrypt.hash(password,10)
+     return passwordHash;
+
+  }
+  catch(err)
+  {
+      console.log(err.message);
+  }
+}
+
+// for send mail
+const sendVerifyMail=async(email,password)=>{
+  try{
+
+     const transporter= nodemailer.createTransport({
+          service:'gmail',
+          requireTLS:true,
+  auth:{
+      user:'balodepriyanka0@gmail.com',
+      pass:'fpoaokmqbvgkgflt'
+  },
+  
+   });
+
+   const mailOptions={
+      from:'balodepriyanka0@gmail.com',
+      to:email,
+      subject:'for verification mail',
+      html:'<p>Hii,<b>Email:-</b>'+email+'<br><b>Password:-'+password+'</b>'
+   }
+   
+   
+   transporter.sendMail(mailOptions,function(error,info){
+      if(error)
+      {
+          console.log(error)
+      }
+      else{
+          console.log("email has been send: ",info.response)
+      }
+   })
+
+  }
+  catch(error){
+      
+      console.log(error.message)
+  }
+}
 
 // Add staff
 const addStaff = async (req, res) => {
   try {
+    var n="MS";
     const staff = new Staff({
-      first_name: req.body.first_name,
+      first_name:req.body.first_name,
       last_name: req.body.last_name,
+      password:n+Math.round(Math.random() *999999),
       designation: req.body.designation,
       primary_contact_number: req.body.primary_contact_number,
       secondary_contact_number: req.body.secondary_contact_number,
@@ -27,7 +96,7 @@ const addStaff = async (req, res) => {
         data.childs.forEach((childData) => {
           const childPermission = childData.permission.map(
             (_permissionList) => {
-              console.log(_permissionList)
+              // console.log(_permissionList)
               return {
                 permission: _permissionList.isSelected,
                 right_detail: _permissionList.name,
@@ -38,7 +107,7 @@ const addStaff = async (req, res) => {
             }
             
           );
-          console.log(childPermission)
+          // console.log(childPermission)
          
 
           permissionArray = [...permissionArray, ...childPermission];
@@ -46,8 +115,9 @@ const addStaff = async (req, res) => {
       });
       permissionArray = permissionArray.filter((data) => data);
       const permissionData = await Permission.insertMany(permissionArray);
-      console.log("permissionData", permissionData);
+      // console.log("permissionData", permissionData);
       if (userData && permissionData) {
+        sendVerifyMail(req.body.email,userData.password,userData._id);
         res.status(200).send({
           success: true,
           data: userData,
@@ -62,6 +132,124 @@ const addStaff = async (req, res) => {
   }
 };
 
+
+
+// verify  login
+
+const verifyLogin=async(req,res)=>{
+  try{
+      const email=req.body.email;
+      const password=req.body.password;
+      const userData=await Staff.findOne({email:email});
+      if(userData){
+
+        //  const passwordMatch=await bcrypt.compare(password,userData.password);
+
+         if(password===userData.password)
+         {
+
+          if(userData.user_type!=="user")
+          {
+              res.status(200).send({success:true,msg:"username and password is incorrect"})
+            
+
+          }
+          else{
+              
+              const tokenData=await create_token(userData._id);
+
+          const userResult={
+              _id:userData._id,
+              first_name:userData.first_name,
+              last_name:userData.last_name,
+              designation:userData.designation,
+              primary_contact_number:userData.primary_contact_number,
+              secondary_contact_number:userData.secondary_contact_number,
+              email:userData.email,
+              password:userData.password,
+              user_type:userData.user_type,
+              token:tokenData
+
+          }
+
+          const response={
+              success:true,
+              msg:"user details",
+              data:userResult
+          }
+          res.status(200).send(response)
+              
+          }
+
+         }
+         else{
+          
+          res.status(200).send({msg:"username and password is incorrect"})
+         }
+
+      }
+      else{
+          res.status(200).send({msg:"username and password is incorrects"})
+      }
+
+  }
+  catch(err){
+      res.status(400).send(err.message);
+  }
+}
+
+// change password
+const change_password=async(req,res)=>{
+  try{
+  const {old_password,new_password,confirm_password}=req.body;
+  const id=req._id;
+  const users=await Staff.findById(id);
+  console.log(users.password);
+  
+  // const oldpass=await equals(old_password,users.password);
+  // console.log(oldpass);
+  if(old_password==='' || new_password==='' || confirm_password==='')
+  {
+      res.status(200).send({success:true,msg:"All fields are required"})
+  }
+  else{
+  if(old_password===users.password)
+  {
+  
+  if( new_password && confirm_password){
+  
+      if( new_password!==confirm_password){
+  
+          res.status(200).send({success:true,msg:"Confirm password does not match"})
+  
+      }
+      else{
+  
+          // const salt=await bcrypt.genSalt(10);
+          // const newHashPassword=await bcrypt.hash(new_password,salt);
+          await Staff.findByIdAndUpdate(req._id,{$set:{password:new_password}})
+          res.status(200).send({success:true,msg:"password changed successfully"})
+  
+      }
+  
+  }
+  // else{
+  //     res.status(200).send({msg:"All fields are required"})
+  // }
+  }
+  else{
+  
+      
+      res.status(200).send({success:true,msg:"old password does not match"})
+      
+  }
+  }
+  }
+  catch(err){
+      res.status(400).send(err.message)
+  }
+      
+  }
 // email exist
 const emailExist=async(req,res)=>{
 
@@ -433,6 +621,40 @@ const updateStaff=async(req,res)=>{
     return res.status(500).json({ msg: "Sorry, something went wrong" });
   }
 }
+// import customer
+const importStaff=async(req,res)=>{
+  try{
+  
+      var userData=[];
+  
+     csv()
+     .fromFile(req.file.path)
+     .then(async(response)=>{
+     
+       for(var x=0;x<response.length;x++){
+          userData.push({
+              first_name:response[x].first_name,
+              last_name:response[x].last_name,
+              designation:response[x].designation,
+              company_name:response[x].company_name,
+              primary_contact_number:response[x].primary_contact_number,
+              email:response[x].email,
+              secondary_contact_number:response[x].secondary_contact_number,
+              
+          })
+  
+       }
+       await Staff.insertMany(userData)
+  
+     })
+      res.send({success:true,msg:"CSV imported"})
+  
+  
+  }catch(error){
+      res.send({success:false,msg:error.message})
+  }
+  }
+
 module.exports={
     
     addStaff,
@@ -444,7 +666,13 @@ module.exports={
     deleteStaff,
     allstaffList,
     emailExist,
-    contactExist
+    contactExist,
+    importStaff,
+    create_token,
+    securePassword,
+    sendVerifyMail,
+    verifyLogin,
+    change_password
   
 }
 

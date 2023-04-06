@@ -80,6 +80,7 @@ const salesList = async (req, res) => {
     try {
 
         const userData = await Sales.find();
+        console.log(userData)
         res.status(200).send({ success: true, data: userData });
 
     }
@@ -326,6 +327,18 @@ const addTask = async (req, res) => {
     }
 
 }
+const allTask=async(req,res)=>{
+    try{
+
+        const userData=await Task.find();
+
+    res.status(200).send({success:true,data:userData});
+
+    }
+    catch(err){
+        res.status(400).send(err.message);
+    }
+}
 
 // add next action
 
@@ -390,8 +403,8 @@ const taskList = async (req, res) => {
 
     try {
         var sortObject = {};
-        var stype = req.query.sorttype ? req.query.sorttype : '_id';
-        var sdir = req.query.sortdirection ? req.query.sortdirection : 1;
+        var stype = req.query.sorttype ? req.query.sorttype : 'createdAt';
+        var sdir = req.query.sortdirection ? req.query.sortdirection : -1;
         sortObject[stype] = sdir;
 
 
@@ -787,8 +800,8 @@ module.exports = {
     updateNote,
     deleteAction,
     updateAction,
-    updateSales
-
+    updateSales,
+    allTask
 }
 
 // .then(async ([userData]) => {

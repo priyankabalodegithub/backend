@@ -45,5 +45,7 @@ const messageSchema=new mongoose.Schema({
    default:new Date()
  }
      
-   });
+   },
+   {timestamps:true}
+   );
    module.exports=mongoose.model('Tbl_Message',messageSchema)

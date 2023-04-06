@@ -111,12 +111,24 @@ const sendMembers=async(req,res)=>{
 
 }
 
+const sendList=async(req,res)=>{
+    try{
+
+        const userData=await Message.find().populate('group_id template_id');
+    res.status(200).send({success:true,data:userData});
+
+    }
+    catch(err){
+        res.status(400).send(err.message);
+    }
+}
+
 // message send list
 const messageSend=async(req,res)=>{
     try{
         var sortObject = {};
-        var stype = req.query.sorttype ? req.query.sorttype : '_id';
-        var sdir = req.query.sortdirection ? req.query.sortdirection : 1;
+        var stype = req.query.sorttype ? req.query.sorttype : 'createdAt';
+        var sdir = req.query.sortdirection ? req.query.sortdirection : -1;
         sortObject[stype] = sdir;
 
         var search='';
@@ -286,5 +298,6 @@ module.exports={
     messageSend,
     messageSendLater,
     editMessage,
-    updateMessage
+    updateMessage,
+    sendList
 }

@@ -27,10 +27,17 @@ const staffSchema=new mongoose.Schema({
     type:String,
     required:true
  },
+ password:{
+   type:String,
+   required:true
+},
+confirm_password:{
+   type:String,
+},
  
-type:{
-   type:Number,
-   default:1
+user_type:{
+   type:String,
+   default:'user'
 }
   
 });

@@ -40,6 +40,10 @@ app.use('/api',customerRoute);
 const businessRoute=require('./routes/businessRoute');
 app.use('/api',businessRoute);
 
+// for business sector router
+const sectorRoute=require('./routes/businessSectorRoute');
+app.use('/api',sectorRoute);
+
 // for service router
 const serviceRoute=require('./routes/serviceRoute');
 app.use('/api',serviceRoute);

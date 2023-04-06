@@ -29,6 +29,8 @@ count:{
    default:0
 }
   
-});
+},
+{timestamps:true}
+);
 module.exports=mongoose.model('Tbl_Group',groupSchema)
 

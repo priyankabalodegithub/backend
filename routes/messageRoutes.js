@@ -14,6 +14,8 @@ message_route.post('/send-members',messageController.sendMembers);
 
 message_route.get('/send-message',messageController.messageSend);
 message_route.get('/send-messageLater',messageController.messageSendLater);
+
+message_route.get('/send-list',messageController.sendList);
 message_route.get('/edit-message',messageController.editMessage);
 message_route.put('/edit-message/:id',messageController.updateMessage);
 

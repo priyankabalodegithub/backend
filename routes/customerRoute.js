@@ -13,22 +13,19 @@ customer_route.use(bodyParser.urlencoded({extended:true}));
 const multer=require('multer');
 const path=require("path");
 
-customer_route.use(express.static('public'));
+
+customer_route.use(express.static(path.resolve(__dirname,'public')));
 
 const storage=multer.diskStorage({
     destination:function(req,file,cb){
-        cb(null,path.join(__dirname,'../public/userImages'),function(error,success){
-            if(error) throw error
-        });
+        cb(null,'./public/uploads')
     },
 
     filename:function(req,file,cb){
-        const name=Date.now()+'-'+file.originalname;
-        cb(null,name,function(error1,success1){
-            if(error1) throw error1
-        })
+        cb(null,file.originalname)
     }
 });
+
 
 const upload=multer({storage:storage});
 
@@ -38,6 +35,7 @@ const customerController=require('../controllers/customerController');
 const jwtHelper=require('../config/jwtHelper')
 
 // customer route
+customer_route.post('/importCustomer',upload.single('file'),customerController.importCustomer);
 customer_route.post('/add_customer',customerController.addCustomer);
 customer_route.get('/allCustomer-list',customerController.allCustomer);
 customer_route.get('/customer-list',customerController.customerList);

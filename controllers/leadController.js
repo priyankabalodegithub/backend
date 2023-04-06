@@ -2,6 +2,7 @@
 // const Lead=require('../models/tbl_lead');
 const Group=require('../models/tbl_group');
 const ContactManagement=require('../models/tbl_contactManagement');
+const csv=require('csvtojson');
 const GroupContact=require('../models/tbl_groupContact');
 const randomstring=require('randomstring');
 const config=require("../config/config");
@@ -182,8 +183,8 @@ const leadList=async(req,res)=>{
    
     try{
         var sortObject = {};
-        var stype = req.query.sorttype ? req.query.sorttype : '_id';
-        var sdir = req.query.sortdirection ? req.query.sortdirection : 1;
+        var stype = req.query.sorttype ? req.query.sorttype : 'createdAt';
+        var sdir = req.query.sortdirection ? req.query.sortdirection : -1;
         sortObject[stype] = sdir;
 
         
@@ -325,6 +326,50 @@ const updateLead=async(req,res)=>{
         res.status(400).send(error.message);
     }
 }
+// import lead
+const importLead=async(req,res)=>{
+    try{
+    
+        var userData=[];
+    
+       csv()
+       .fromFile(req.file.path)
+       .then(async(response)=>{
+        
+         for(var x=0;x<response.length;x++){
+            userData.push({
+                first_name:response[x].first_name,
+                last_name:response[x].last_name,
+                designation:response[x].designation,
+                company_name:response[x].company_name,
+                primary_contact_number:response[x].primary_contact_number,
+                email:response[x].email,
+                secondary_contact_number:response[x].secondary_contact_number,
+                group:response[x].group,
+                business_opportunity:response[x].business_opportunity,
+                status:response[x].status,
+                address1:response[x].address1,
+                address2:response[x].address2,
+                taluka:response[x].taluka,
+                village:response[x].village,
+                zipcode:response[x].zipcode,
+                city:response[x].city,
+                state:response[x].state,
+                country:response[x].country,
+                type:'lead'
+            })
+    
+         }
+         await ContactManagement.insertMany(userData)
+    
+       })
+        res.send({success:true,msg:"CSV imported"})
+    
+    
+    }catch(error){
+        res.send({success:false,msg:error.message})
+    }
+    }
 module.exports={
 
     addLead,
@@ -337,5 +382,6 @@ module.exports={
     getCities,
     emailExist,
     contactExist,
-    allLead
+    allLead,
+    importLead
 }

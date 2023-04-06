@@ -73,6 +73,7 @@ is_completed:{
    default:0
  }
  
-}
+},
+{timestamps:true}
 );
 module.exports=mongoose.model('Task_History',taskHistorySchema)

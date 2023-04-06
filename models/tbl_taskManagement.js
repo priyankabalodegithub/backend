@@ -106,6 +106,7 @@ task_completed:{
 //  note:{
 //    type:String
 //  }
-}
+},
+{timestamps:true}
 );
 module.exports=mongoose.model('Tbl_TaskManagement',taskManagementSchema)

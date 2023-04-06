@@ -15,18 +15,15 @@ const path=require("path");
 
 staff_route.use(express.static('public'));
 
+staff_route.use(express.static(path.resolve(__dirname,'public')));
+
 const storage=multer.diskStorage({
     destination:function(req,file,cb){
-        cb(null,path.join(__dirname,'../public/userImages'),function(error,success){
-            if(error) throw error
-        });
+        cb(null,'./public/uploads')
     },
 
     filename:function(req,file,cb){
-        const name=Date.now()+'-'+file.originalname;
-        cb(null,name,function(error1,success1){
-            if(error1) throw error1
-        })
+        cb(null,file.originalname)
     }
 });
 
@@ -36,6 +33,7 @@ const staffManagementController=require('../controllers/staff_managementControll
 const jwtHelper=require('../config/jwtHelper')
 
 // staff management
+staff_route.post('/import-staff',upload.single('file'),staffManagementController.importStaff);
 staff_route.post('/add-staff', staffManagementController.addStaff);
 staff_route.post('/add-permission', staffManagementController.addPermission);
 staff_route.get('/staffpermission-list', staffManagementController.staffList);
@@ -47,8 +45,10 @@ staff_route.put('/edit-staff/:id',staffManagementController.updateStaff);
 
 staff_route.get('/exist-Staffemail',staffManagementController.emailExist);
 staff_route.get('/exist-Staffcontact',staffManagementController.contactExist);
+staff_route.post('/Userlogin',staffManagementController.verifyLogin);
+staff_route.post('/change-password',jwtHelper,staffManagementController.change_password);
 
-staff_route.get('/test',jwtHelper,function(req,res){
+staff_route.get('/tests',jwtHelper,function(req,res){
     res.status(200).send({success:true,msg:"authentication"})
 })
 
