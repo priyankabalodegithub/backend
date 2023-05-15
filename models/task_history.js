@@ -18,7 +18,7 @@ task_id:{
  }],
  action_date:{
     type:String,
-    // required:true  
+    required:true  
  },
  remarks:{
     type:String

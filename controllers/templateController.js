@@ -143,15 +143,23 @@ const templateList=async(req,res)=>{
             limit: limit,
           };
         }
+
+        // .find(query)
+        console.log(req.query.is_archive);
+        const query = {};
+        if (req.query.is_archive && req.query.is_archive == 1) {
+            query.is_archive = req.query.is_archive
+        } 
+
         result.data = await Template.find()
         .find({
             $or:[
-                {is_archive: req.query.is_archive},
+                // {is_archive: req.query.is_archive},
                 {template_name :{$regex:'.*'+search+'.*',$options:'i'}},
                 {language:{$regex:'.*'+search+'.*',$options:'i'}},
                 {template_created_for:{$regex:'.*'+search+'.*',$options:'i'}},
             ]
-        })
+        }).find(query)
         .sort(sortObject)
         .skip(startIndex)
         .limit(limit)
@@ -274,8 +282,20 @@ const languageList=async(req,res)=>{
     }
 }
 
+// update archive unarchive
+const updateArchiveUnarchive=async(req,res)=>{
+    try{
 
-
+       const userData= await Template.findByIdAndUpdate({_id:req.params.id},
+        {$set:{
+            is_archive:req.body.is_archive
+        }})
+       res.status(200).send({sucess:true,msg:"sucessfully updated",updateData:userData})
+    }
+    catch(error){        
+        res.status(400).send(error.message);
+    }
+}
 
 module.exports={
     addTemplate,
@@ -287,6 +307,8 @@ module.exports={
     alltemplate,
     addTemplatesms,
     updateTemplateSms,
-    allsmstemplate
+    allsmstemplate,
+    updateArchiveUnarchive
+    
 }
 

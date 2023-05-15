@@ -61,6 +61,7 @@ template_route.get('/edit-template',templateController.editTemplate);
 template_route.get('/delete-template',templateController.deleteTemplate);
 template_route.put('/edit-template/:id',upload,docValidation,templateController.updateTemplate);
 template_route.put('/edit-templateSms/:id',templateController.updateTemplateSms);
+template_route.put('/updateArchive/:id',templateController.updateArchiveUnarchive);
 
 template_route.get('/language-list',templateController.languageList);
 

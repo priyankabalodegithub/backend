@@ -51,6 +51,8 @@ lead_route.put('/edit-lead/:id',leadController.updateLead);
 lead_route.get('/exist-leadEmail',leadController.emailExist);
 lead_route.get('/exist-leadContact',leadController.contactExist);
 
+lead_route.get('/export-lead',leadController.exportLeads);
+
 lead_route.get('/test',jwtHelper,function(req,res){
     res.status(200).send({success:true,msg:"authentication"})
 })

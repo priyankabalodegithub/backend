@@ -38,7 +38,11 @@ confirm_password:{
 user_type:{
    type:String,
    default:'user'
-}
+},
+token:{
+   type:String,
+   default:''
+ }
   
 });
 module.exports=mongoose.model('Tbl_Staff',staffSchema)

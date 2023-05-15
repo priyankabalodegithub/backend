@@ -48,6 +48,9 @@ staff_route.get('/exist-Staffcontact',staffManagementController.contactExist);
 staff_route.post('/Userlogin',staffManagementController.verifyLogin);
 staff_route.post('/change-password',jwtHelper,staffManagementController.change_password);
 
+staff_route.post('/forget',staffManagementController.forgetPassword);
+staff_route.post('/reset-password',staffManagementController.reset_password);
+
 staff_route.get('/tests',jwtHelper,function(req,res){
     res.status(200).send({success:true,msg:"authentication"})
 })

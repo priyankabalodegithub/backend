@@ -38,6 +38,44 @@ const securePassword=async(password)=>{
   }
 }
 
+// for reset password send mail
+
+const sendResetPasswordMail=async(email,token)=>{
+  try{
+
+     const transporter= nodemailer.createTransport({
+          service:'gmail',
+          requireTLS:true,
+  auth:{
+      user:'balodepriyanka0@gmail.com',
+      pass:'fpoaokmqbvgkgflt'
+  },
+  
+   });
+
+   const mailOptions={
+      from:'balodepriyanka0@gmail.com',
+      to:email,
+      subject:'for Reset Password',
+      html:'<p>Hii,please click here to <a href="http://localhost:4200/login/reset-password?token='+token+'">Reset...</a>your password </p>'
+   }                                                       
+   transporter.sendMail(mailOptions,function(error,info){
+      if(error)
+      {
+          console.log(error)
+      }
+      else{
+          console.log("email has been send: ",info.response)
+      }
+   })
+
+  }
+  catch(err){
+      console.log(err.message);
+  }
+}
+
+
 // for send mail
 const sendVerifyMail=async(email,password)=>{
   try{
@@ -250,6 +288,70 @@ const change_password=async(req,res)=>{
   }
       
   }
+  // forget password
+
+const forgetPassword=async(req,res)=>{
+  try{
+
+     const email=req.body.email;
+      const userData=await Staff.findOne({email:email});
+
+     if(userData)
+     {
+         if(userData.is_admin===0)
+          {
+            return  res.render('forget',{message:"Email is incoreect"});
+          }
+          else
+          {
+
+              const randomString= randomstring.generate();
+              const data=await Staff.updateOne({email:email},{$set:{token:randomString}})
+      
+              sendResetPasswordMail(userData.email,randomString)
+      
+              res.status(200).send({success:true,msg:"Please check your inbox mail and reset your password"});
+          } 
+
+     }
+     else{
+      res.status(200).send({success:true,msg:"this email not exist"});
+     }
+
+  }
+  catch(error){
+      res.status(400).send(error.message)
+  }
+}
+
+// reset password
+const reset_password=async(req,res)=>{
+
+  try{
+
+      const token=req.query.token;
+      const tokenData=await Staff.findOne({token:token});
+
+      if(tokenData)
+      {
+        const password=req.body.password;
+        // const newPassword=await securePassword(password);
+        const userData=await Staff.findByIdAndUpdate({_id:tokenData._id},{$set:{password:password,token:''}},{new:true});
+        res.status(200).send({success:true,msg:"user pass has been reset",data:userData})
+      }
+      else{
+          res.status(200).send({success:true,msg:"this link has been expired"})
+      }
+
+  }
+  catch(error)
+  {
+      res.status(400).send(error.message);
+  }
+  
+}
+
+
 // email exist
 const emailExist=async(req,res)=>{
 
@@ -672,7 +774,10 @@ module.exports={
     securePassword,
     sendVerifyMail,
     verifyLogin,
-    change_password
+    change_password,
+    forgetPassword,
+    reset_password
+    
   
 }
 

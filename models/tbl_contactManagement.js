@@ -55,8 +55,8 @@ const contactManagementSchema=new mongoose.Schema({
     //  required:true
  }],
   status:{
-    type:Boolean,
-    default:true
+    type:String,
+    
  },
  contact_source:[{
    type:mongoose.Schema.Types.ObjectId,

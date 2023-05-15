@@ -192,11 +192,32 @@ const leadList=async(req,res)=>{
         if(req.query.search){
             search=req.query.search
         }
+        
+        var businessFilters=[];
+        if(req.query.businessFilters){
+            businessFilters=req.query.businessFilters.split(',');            
+        }
+        
+        const query = {};
+
+        query.type = 'lead';
+        
+        // console.log(businessFilters);
+        if (businessFilters.length > 0) {
+            query.business_opportunity = { $in: businessFilters }
+        } 
+
+        if(req.query.daysFilter){
+            var lastWeek = new Date();
+            lastWeek.setDate(lastWeek.getDate() - req.query.daysFilter);
+            // console.log(lastWeek);
+            query.updatedAt = { $gte: lastWeek }
+        }
 
         const pageNumber = parseInt(req.query.pageNumber) || 0;
         const limit = parseInt(req.query.limit) || 4;
         const result = {};
-        const totalPosts = await ContactManagement.countDocuments({type:'lead'}).exec();
+        const totalPosts = await ContactManagement.countDocuments(query).exec();
         let startIndex = pageNumber * limit;
         const endIndex = (pageNumber + 1) * limit;
         result.totalPosts = totalPosts;
@@ -206,13 +227,15 @@ const leadList=async(req,res)=>{
             limit: limit,
           };
         }
-        if (endIndex < (await ContactManagement.countDocuments({type:'lead'}).exec())) {
+        if (endIndex < (await ContactManagement.countDocuments(query).exec())) {
           result.next = {
             pageNumber: pageNumber + 1,
             limit: limit,
           };
         }
-        result.data = await ContactManagement.find({type:'lead'})
+
+        
+        result.data = await ContactManagement.find(query)
         .populate('group business_opportunity')
         .find({
             $or:[
@@ -326,6 +349,56 @@ const updateLead=async(req,res)=>{
         res.status(400).send(error.message);
     }
 }
+// export lead data
+const exportLeads=async(req,res)=>{
+    try{
+      
+        //   const workbook=new excelJS.Workbook();
+        //   const worksheet=workbook.addWorksheet("My Group");
+      
+        //   worksheet.columns=[
+        //       {header:"S.no",key:"s_no",width:5},
+        //       {header:"Group",key:"group_name",width:10},
+        //       {header:"Total",key:"count",width:10},
+        //   ];
+      
+        //   let count=1;
+      
+          const userData=await ContactManagement.find({type:"lead"})
+        //   userData.forEach((user)=>{
+        //       user.s_no=count;
+        //       worksheet.addRow(user);
+        //       count++;
+        //   })
+      
+        //   worksheet.getRow(1).eachCell((cell)=>{
+        //       cell.font={bold:true};
+        //   });
+      
+          try {
+            // res.setHeader(
+            //   "Content-Type",
+            //   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            // );
+            // res.setHeader("Content-Disposition", `attachment; filename=users.xlsx`);
+        
+            // return workbook.xlsx.writeBuffer(res).then((data) => {
+                // const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                res.status(200).send({ msg: "User Lead Data", data: userData});
+            // });
+        
+          } catch (err) {
+            res.send({
+              status: "error",
+              message: "Something went wrong",
+            });
+          }
+        }
+        catch(err){
+          console.log(err.message);
+        }
+  }
+  
 // import lead
 const importLead=async(req,res)=>{
     try{
@@ -383,5 +456,6 @@ module.exports={
     emailExist,
     contactExist,
     allLead,
-    importLead
+    importLead,
+    exportLeads
 }

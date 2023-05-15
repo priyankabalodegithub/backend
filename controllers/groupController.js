@@ -1,7 +1,7 @@
 
 const Group=require('../models/tbl_group');
 const Members=require('../models/tbl_allGroupMember');
-
+const Blob = require('blob');
 const config=require("../config/config");
 
 const jwt=require('jsonwebtoken');
@@ -223,38 +223,39 @@ const updateProfile=async(req,res)=>{
 const exportContacts=async(req,res)=>{
     try{
       
-      const workbook=new excelJS.Workbook();
-      const worksheet=workbook.addWorksheet("My Group");
+    //   const workbook=new excelJS.Workbook();
+    //   const worksheet=workbook.addWorksheet("My Group");
   
-      worksheet.columns=[
-          {header:"S.no",key:"s_no",width:5},
-          {header:"Group",key:"group_name",width:10},
-          {header:"Total",key:"count",width:10},
-      ];
+    //   worksheet.columns=[
+    //       {header:"S.no",key:"s_no",width:5},
+    //       {header:"Group",key:"group_name",width:10},
+    //       {header:"Total",key:"count",width:10},
+    //   ];
   
-      let count=1;
+    //   let count=1;
   
       const userData=await Group.find({is_group:1})
-      userData.forEach((user)=>{
-          user.s_no=count;
-          worksheet.addRow(user);
-          count++;
-      })
+    //   userData.forEach((user)=>{
+    //       user.s_no=count;
+    //       worksheet.addRow(user);
+    //       count++;
+    //   })
   
-      worksheet.getRow(1).eachCell((cell)=>{
-          cell.font={bold:true};
-      });
+    //   worksheet.getRow(1).eachCell((cell)=>{
+    //       cell.font={bold:true};
+    //   });
   
       try {
-        res.setHeader(
-          "Content-Type",
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        );
-        res.setHeader("Content-Disposition", `attachment; filename=users.xlsx`);
+        // res.setHeader(
+        //   "Content-Type",
+        //   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        // );
+        // res.setHeader("Content-Disposition", `attachment; filename=users.xlsx`);
     
-        return workbook.xlsx.write(res).then(() => {
-          res.status(200);
-        });
+        // return workbook.xlsx.writeBuffer(res).then((data) => {
+            // const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            res.status(200).send({ msg: "User Group Data", data: userData});
+        // });
     
       } catch (err) {
         res.send({

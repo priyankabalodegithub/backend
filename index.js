@@ -68,6 +68,10 @@ app.use('/api',messageRoute);
 const templateRoute=require('./routes/templateRoute');
 app.use('/api',templateRoute);
 
+// for dashboard router
+const dashboardRoutes=require('./routes/dashboardRoutes');
+app.use('/api',dashboardRoutes);
+
 app.use(express.static('public'));
 app.use('/image', express.static('image'));
 app.use('/document', express.static('document'));

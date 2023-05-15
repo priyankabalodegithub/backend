@@ -123,6 +123,31 @@ const sendList=async(req,res)=>{
     }
 }
 
+// send all send message list
+const sendAll=async(req,res)=>{
+    try{
+
+        const userData=await Message.find({is_send:1}).populate('group_id template_id');
+    res.status(200).send({success:true,data:userData});
+
+    }
+    catch(err){
+        res.status(400).send(err.message);
+    }
+}
+// send all schedule message list
+const scheduleAll=async(req,res)=>{
+    try{
+
+        const userData=await Message.find({is_send:0}).populate('group_id template_id');
+    res.status(200).send({success:true,data:userData});
+
+    }
+    catch(err){
+        res.status(400).send(err.message);
+    }
+}
+
 // message send list
 const messageSend=async(req,res)=>{
     try{
@@ -299,5 +324,7 @@ module.exports={
     messageSendLater,
     editMessage,
     updateMessage,
-    sendList
+    sendList,
+    sendAll,
+    scheduleAll
 }

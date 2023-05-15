@@ -350,7 +350,7 @@ const addnextAction=async(req,res)=>{
                 task_id: req.body._id,
                 sales_phase: req.body.sales_phase,
                 action: req.body.action,
-                action_date: req.body.action_date,
+                action_date:req.body.action_date,
                 remarks: req.body.remarks,
                 assign_task_to: req.body.assign_task_to,
                 budget: req.body.budget,
@@ -359,7 +359,7 @@ const addnextAction=async(req,res)=>{
                 reason_for_dealLost: req.body.reason_for_dealLost,
                 lead_status:req.body.sales_phase[0].name !=='Initial Contact' ? Number(req.body.level_of_urgency) : 1,
                 is_completed:req.body.is_completed,
-                next_action:req.body.next_action,
+                // next_action:req.body.next_action,
                 note:req.body.note,
                 reason_for_dealLost:req.body.reason_for_dealLost,
                 task_completed:req.body.task_completed
